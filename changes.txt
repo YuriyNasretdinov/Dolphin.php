@@ -1,0 +1,365 @@
+88 build        released on Fri, 20 Jun 2008 15:26:20 +0400
+-----------------------------------
+What`s new:
+  a bit of polish and few features added
+-----------------------------------
+f/swfupload/index.php:
+  made better interace change
+
+full/full.php:
+  improved loading of the interface
+-----------------------------------
+87 build        released on Tue, 29 Apr 2008 03:33:20 +0400
+-----------------------------------
+What`s new:
+  New design for full version. New upload mechanism. A lot of other improvements.
+-----------------------------------
+86 build        released on Fri, 18 Jan 2008 18:16:05 +0300
+-----------------------------------
+What`s new:
+  Light version:
+   - improved look in iPhone (yes, again!)
+  Full version:
+   - changed way operations are executed in command line: Dolphin.php does not "hang" if you entered invalid command:
+     now, you can just close terminal, open it again and kill the application you launched
+   - added Multipart for the following operations: copy, delete, chmod, directory size count and for properties window:
+     These operations will show their state every 5 seconds (this could be changed in config.php -- new directives MAX_MULTIPART_TIME and USE_MULTIPART added). You should not close browser window, when operation is run -- it will stop otherwise.
+  
+    Multipart does not support FTP, though: you may use light version if Multipart does not work correctly.
+-----------------------------------
+f/engine.js:
+  modified this file a lot to enable Multipart for several operations
+
+full/actions.php:
+  modified this file to make it work with Multipart
+
+light/iphone.css:
+  added this file -- special style for iPhone
+
+system/func.php:
+  added Multipart functions and several processors for Multipart
+-----------------------------------
+85 build        released on Sun, 09 Dec 2007 22:09:19 +0300
+-----------------------------------
+What`s new:
+  Improved speed of file listing in light version. Now it should be even faster.
+-----------------------------------
+light/light.php:
+  A _lot_ of modifications to make light version new function.
+
+system/func.php:
+  Added d_filelist_extreme -- the extreme (with both enormous speed and functionality) version of filelist for further use. New filelist for light version uses this function.
+-----------------------------------
+84 build        released on Wed, 28 Nov 2007 02:37:01 +0300
+-----------------------------------
+What`s new:
+  Full version: Enabled "properties" entry in context menu. Fixed several bugs. Added several new bugs :).
+  
+  This version is the first to be in 0.1 RC1 series. The next work will be on stabilizing this build.
+-----------------------------------
+f/interface.js:
+  added "properties" context menu entry
+
+system/ftp.php:
+  commented debug places
+
+system/func.php:
+  Some bugfixes.
+-----------------------------------
+83 build        released on Tue, 20 Nov 2007 01:23:44 +0300
+-----------------------------------
+What`s new:
+  Changes are only in full version:
+  
+  - Added hotkey "Ctrl+A" (or Ctrl+B in Safari) for selecting all files in directory (works only in normal rendering mode).
+  - Added initial (and slightly buggy) support of context menus. Just click a file or a group of files by right mouse button, and menu will appear.
+-----------------------------------
+f/interface.js:
+  added context menu and selecting all files functionality
+
+system/func.php:
+  fixed error in d_rename(), when renaming a file to itself considered as mistake.
+-----------------------------------
+82 build        released on Thu, 15 Nov 2007 21:19:22 +0300
+-----------------------------------
+What`s new:
+  Light version: improved (?) look in iPhone
+  Full version:
+  - fixed (?) bug with "save & close window" button when you're using syntax highlight.
+  - fixed invalid timing for ping-pong request (it should prevent from session expire).
+-----------------------------------
+full/edit.php:
+  bound "save changes" button with "save & close window". It must not lose data now.
+
+full/full.php:
+  replaced session_cache_expire() with session.gc_maxlifetime :).
+
+light/light.php:
+  added <meta name="viewport" content="width=device-width, user-scalable=no" /> for iPhone safari
+-----------------------------------
+81 build        released on Fri, 09 Nov 2007 20:09:35 +0300
+-----------------------------------
+What`s new:
+  Added experimental syntax highlighting, using CodePress. It works good in Firefox and satisfying in IE7. In other browsers it is disabled. 
+-----------------------------------
+f/codepress/codepress.js:
+  added this file
+  removed auto-initialization in order to preserve unmodified source of a file
+
+f/codepress/engines/gecko.js:
+  patched this file a little to make "Ctrl+S" combination work.
+  see //yourock and // /yourock places
+
+f/codepress/engines/msie.js:
+  patched this file a little to make "Ctrl+S" combination work.
+  see //yourock and // /yourock places
+
+system/func.php:
+  performance increases. abs_path() will be rewritten to consume less computing power, as it really slows down file operations.
+-----------------------------------
+80 build        released on Mon, 05 Nov 2007 22:37:31 +0300
+-----------------------------------
+What`s new:
+  Changed design of login screen.
+-----------------------------------
+images/login-bg.png:
+  added this file
+
+images/light-preview.png:
+  added this file
+
+images/full-preview.png:
+  added this file
+
+system/login.html:
+  changed login screen design. soon support for specific mobile view will be added
+-----------------------------------
+79 build        released on Mon, 05 Nov 2007 21:32:38 +0300
+-----------------------------------
+What`s new:
+  The last release with old design. The design will be changing after this release.
+-----------------------------------
+index.php:
+  no changes
+-----------------------------------
+78 build        released on Mon, 05 Nov 2007 03:17:38 +0300
+-----------------------------------
+What`s new:
+  Interface improvements, bug fixes
+-----------------------------------
+full/full.php:
+  Added support of context menu when mouse is over input field.
+-----------------------------------
+77 build        released on Sun, 04 Nov 2007 21:27:30 +0300
+-----------------------------------
+What`s new:
+  Bugfixes, bugfixes, bugfixes. A lot of bugs fixed.
+-----------------------------------
+f/all.src.js:
+  Not so many bugfixes.
+
+light/light.php:
+  Fixed a lot of errors.
+-----------------------------------
+76 build        released on Thu, 01 Nov 2007 22:08:32 +0300
+-----------------------------------
+What`s new:
+  Another stability & usability patch.
+  
+  full version: Improved edit window a little (you can now save files by pressing Ctrl+S). Added better check, whether file is writable.
+  light version: Swapped save and "edit" buttons, so that file editing interface in full version and light version are mostly equal.
+-----------------------------------
+full/edit.php:
+  Improvements in edit window.
+-----------------------------------
+75 build        released on Thu, 01 Nov 2007 04:06:14 +0300
+-----------------------------------
+What`s new:
+  Removed detailed output of errors. You can enable it by deleting "error_reporting(0);" in index.php
+-----------------------------------
+index.php:
+  Added error_reporting(0);
+-----------------------------------
+74 build        released on Thu, 01 Nov 2007 02:16:38 +0300
+-----------------------------------
+What`s new:
+  Null Release Candidate!
+  Removed experimental features, made several improvements in interface, fixed several bugs.
+-----------------------------------
+f/i/overall.back.png:
+  added this file
+
+f/i/overall.74.png:
+  deleted unused elements, translated all buttons.
+-----------------------------------
+73 build        released on Sun, 28 Oct 2007 02:27:23 +0300
+-----------------------------------
+What`s new:
+  full version: Improved menu drawing for folders. 
+  full&light versions: Added recursive CHMOD
+-----------------------------------
+f/engine.js:
+  Improve for folders menu drawing.
+-----------------------------------
+72 build        released on Sat, 20 Oct 2007 19:37:48 +0400
+-----------------------------------
+What`s new:
+  Several bugfixes.
+-----------------------------------
+f/render.js:
+  Fixed (?) interface hang when you try to change directory with a simplified view (full version)
+
+system/func.php:
+  Changed bug with invalid rights for newly created directories
+-----------------------------------
+71 build        released on Fri, 19 Oct 2007 01:55:47 +0400
+-----------------------------------
+What`s new:
+  Bugfix release for previous build + now config.php is checked before inclusion.
+-----------------------------------
+f/engine.js:
+  Fixed some optimization errors
+
+system/core.php:
+  Added check for failure in config.php
+-----------------------------------
+70 build        released on Fri, 19 Oct 2007 01:17:38 +0400
+-----------------------------------
+What`s new:
+  Added selection of multiple files to full version (only selection with Ctrl+keys and Ctrl+mouse is supported now).
+-----------------------------------
+f/engine.js:
+  Intristic changes
+-----------------------------------
+69 build        released on Thu, 04 Oct 2007 20:20:31 +0400
+-----------------------------------
+What`s new:
+  Another-fix-that-should-make-update-work-in-full-version.
+-----------------------------------
+full/actions.php:
+  Surely, the last fix!
+-----------------------------------
+68 build        released on Thu, 04 Oct 2007 20:16:08 +0400
+-----------------------------------
+What`s new:
+  Another fix for dolphin update in full version :)
+-----------------------------------
+full/actions.php:
+  another change for update dolphin to work
+-----------------------------------
+67 build        released on Thu, 04 Oct 2007 20:00:42 +0400
+-----------------------------------
+What`s new:
+  fix for update in full version
+-----------------------------------
+system/core.php:
+  fixed a bug, which disabled update in full version
+-----------------------------------
+66 build        released on Thu, 04 Oct 2007 19:54:15 +0400
+-----------------------------------
+What`s new:
+  Added to light version: "paste big files" option
+  Added to full version: ZIP support, CHMOD files and folders and Dolphin update.
+-----------------------------------
+f/left_menu.js:
+  Added zip and chmod options
+
+system/types.php:
+  Translated filetypes to English language (from russian).
+-----------------------------------
+65 build        released on Thu, 04 Oct 2007 00:38:24 +0400
+-----------------------------------
+What`s new:
+  Removed some debugging places...
+-----------------------------------
+system/ftp.php:
+  removed "echo" in copy function
+-----------------------------------
+64 build        released on Thu, 04 Oct 2007 00:36:24 +0400
+-----------------------------------
+What`s new:
+  Reorganization of FTP work. Added "paste (big files)" in light version. It's still experimental feature!
+-----------------------------------
+system/func.php:
+  Reorganized work with FTP. It should be more clear now, and some bugs with changing file rights should become smaller.
+
+system/ftp.php:
+  Added this file, it contains the primary stuff to work with FTP. Added new d_ftpcom function, it executes the corresponding FTP command.
+-----------------------------------
+63 build        released on Sat, 29 Sep 2007 00:53:19 +0400
+-----------------------------------
+What`s new:
+  Design fix
+-----------------------------------
+full/terminal.php:
+  fixed style for vertical scrollbar to be shown properly
+-----------------------------------
+62 build        released on Sat, 29 Sep 2007 00:51:16 +0400
+-----------------------------------
+What`s new:
+  Design fix
+-----------------------------------
+full/terminal.php:
+  fixed style for vertical scrollbar to be shown properly
+-----------------------------------
+61 build        released on Wed, 19 Sep 2007 23:50:42 +0400
+-----------------------------------
+What`s new:
+  Added experimental support of copying big (or many) files.
+-----------------------------------
+config.php:
+  Changed default MAX_COPY_TIME to 4 seconds.
+-----------------------------------
+60 build        released on Fri, 14 Sep 2007 00:19:23 +0400
+----------------------------------
+What`s new:
+  Made renaming of files better, fixed some bugs in it.
+  
+  Added keyboard support: KEYUP, KEYDOWN select files, F2 renames file, Delete unlinks the file, Ctrl+C copies it, Ctrl+X cuts. Then, Ctrl+V does paste files. Enter edits files and opens folders, Backspace leads to upper directory. Please note, that a file, selected via keyboard, may not be seen, because it is out of the coverage. It is an unfixed bug.
+----------------------------------
+f/all.src.js:
+  numerous changes, fixing bugs with file renaming and adding keyboard support
+----------------------------------
+full/full.php:
+  added handling of key presses
+----------------------------------
+59 build        released on Wed, 12 Sep 2007 23:59:18 +0400
+-----------------------------------
+What`s new:
+  Changed design of file renaming: now it is more similar to Windows Explorer.
+-----------------------------------
+f/render.js:
+  changed the way of rendering items to allow new renaming of files
+-----------------------------------
+58 build        released on Wed, 29 Aug 2007 19:45:13 +0400
+-----------------------------------
+What`s new:
+  Removed mobile version -- use light version instead. Mobile version was a bad copy of light. So I'm not going to support it.
+  Improved interface look when resizing window (full version).
+  Minor changes.
+-----------------------------------
+full/edit.php:
+  modified look of edit window
+-----------------------------------
+57 build        released on Tue, 12 Jun 2007 01:41:02 +0400
+-----------------------------------
+What`s new:
+  code refractoring, bug fixing, improving stability and UI look
+-----------------------------------
+f/compress.php:
+  improved js compressor/compiler: now constants can be added to js files
+
+f/overall.57.css:
+  added some hacks to make full version look properly under Konqueror and Safari
+
+mobile/mobile.php:
+  fixed bug, that directories were not created
+-----------------------------------
+56 build        released on Tue, 29 May 2007 00:52:13 +0400
+-----------------------------------
+What`s new:
+  Added terminal and "install new version" to mobile version
+-----------------------------------
+mobile/view.php:
+  added "open terminal" and "install new version" options
+-----------------------------------

@@ -1,0 +1,8 @@
+body { margin: 0px; padding: 0px; padding-left: 0px; padding-right: 0px; max-width: 320px; }
+.filename { max-width: 240px; font-size: 14px; }
+form { padding: 0px; padding-top: 0px; margin: 0px; }
+h3 { padding: 0px; margin: 0px; }
+p { padding: 0px; margin: 0px; }
+textarea { height: 100%; }
+.desktop { display: none; }
+.toutput { font-size: 10px; }

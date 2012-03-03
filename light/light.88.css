@@ -1,0 +1,15 @@
+body { margin: 0px; padding: 10px; padding-left: 5px; padding-right: 5px; }
+form { padding: 0px; padding-top: 5px; margin: 0px; }
+h3 { padding: 5px; margin: 0px; }
+p  { padding: 0px; padding-top: 5px; margin: 0px; }
+
+body, td, th, input, select, option { font-family: Verdana; font-size: 11px; }
+table.list tr td { border-bottom: 1px #bbbbbb solid; }
+.n { border: 0px; }
+.v { vertical-align: top; }
+a.category { font-size: 14pt; font-weight: bold; color: #00006c; }
+a { text-decoration: none; }
+a.show, a.back, #refresh_a { text-decoration: underline; }
+h3 { font-family: Verdana; font-size: 13px; }
+textarea { height: 300px; width: 100%; max-width: 750px; font-family:Courier new, Verdana, Arial; font-size:12px; }
+.toutput { font-size: 13px; }

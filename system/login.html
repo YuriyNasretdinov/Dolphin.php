@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><title><?=NAME?></title>
+<style>
+html, body { width: 100%; height: 100%; }
+body, form { margin: 0px; padding: 0px; }
+
+.login_inp
+{
+	width: 165px;
+	font-family: Verdana;
+	font-size: 14px;
+	height: 23px;
+	margin-bottom: 8px;
+}
+
+.login_btn
+{
+	margin-top: 7px;
+}
+
+.version_text
+{
+	font-weight: bold;
+	font-family: Verdana;
+	font-size: 14px;
+}
+
+#version_description
+{
+	margin-top: 16px;
+	width: 170px;
+	
+	font-family: Verdana;
+	font-size: 12px;
+	color: #3b3b3b;
+}
+
+</style>
+
+<script>
+var $=function(id){return document.getElementById(id)};
+
+function dshow(radio, type)
+{
+	if(!radio.checked) return;
+	
+	$('full_descr').style.display=type=='full'?'':'none';
+	$('light_descr').style.display=type=='full'?'none':'';
+}
+// remember current version to prevent flicker in IE
+var cur_ver = null;
+function select_full()
+{
+	if(cur_ver == 'full') return;
+	
+	$('part_bg').style.backgroundImage = "url('f/i/login_full.jpg')";
+	$('version_description').innerHTML = 'The full version is designed for modern browsers and relatively fast internet connection';
+	
+	cur_ver = 'full';
+}
+
+function select_light()
+{
+	if(cur_ver == 'light') return;
+	
+	$('part_bg').style.backgroundImage = "url('f/i/login_light.jpg')";
+	$('version_description').innerHTML = 'The light version is designed for old and mobile browsers with relatively slow internet connection';
+	
+	cur_ver = 'light';
+}
+
+function login_load()
+{
+	if($('version_light').checked) select_light();
+	else select_full();
+	
+	var login_el = $('login');
+	// if "placeholder" property is supported
+	if(!login_el.placeholder && !login_el.value)
+	{
+		var gray_color = 'rgb(87, 87, 87)'; // stupid IE
+		login_el.value = 'login';
+		login_el.style.color = gray_color;
+		
+		var focus = function()
+		{
+			if(login_el.style.color == gray_color)
+			{
+				login_el.style.color = '';
+				login_el.value = '';
+			}
+		};
+		
+		var blur = function()
+		{
+			if(!login_el.value)
+			{
+				login_el.style.color = gray_color;
+				login_el.value = login_el.getAttribute('placeholder');
+			}
+		};
+		
+		if(login_el.attachEvent)
+		{
+			login_el.attachEvent('onfocus', focus);
+			login_el.attachEvent('onblur', blur);
+		}else if(login_el.addEventListener)
+		{
+			login_el.addEventListener('focus', focus, false);
+			login_el.addEventListener('blur', blur, false);
+		}
+	}
+}
+</script>
+</head>
+<body onload="login_load();">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" height="100%">
+<tr height="508">
+
+	<td valign="middle" style="vertical-align: middle;" align="center">
+
+	<table width="100%" height="508" border="0" cellpadding="0" cellspacing="0" style="background: #b7babe url('f/i/login_bg.png');">
+	
+		<tr><td valign="middle" align="center">
+			<form action="index.php" method="POST">
+				<table width="621" height="455" style="background: url('f/i/login_rect.png')" cellspacing="0" cellpadding="0">
+					<tr height="100">
+						<td colspan="2">
+						</td>
+					</tr>
+			
+					<tr valign="top" align="left" height="145">
+						<td width="400">
+							<div style="padding-left: 155px; margin-top: 35px;">
+						
+								<input class="login_inp" id="login" name="login" value="" placeholder="login" /><br/>
+								<input class="login_inp" id="password" name="pass" type="password" value="" placeholder="password" /><br/>
+								<button type="submit" class="login_btn"><b>Sign in</b></button>
+						
+							</div>
+						</td>
+				
+						<td>
+							<div style="display: inline-block; *display: inline; width: 80px;"><label class="version_text">
+								<input type="radio" id="version_full" name="version" value="full" onchange="if(this.checked) select_full();" onclick="this.onchange();" checked="checked" /> Full
+							</label></div>
+						
+							<div style="display: inline-block; *display: inline;"><label class="version_text">
+								<input type="radio" id="version_light" name="version" value="light" onchange="if(this.checked) select_light();" onclick="this.onchange();" /> Light
+							</label></div>
+						
+							<div id="version_description">
+							
+							</div>
+						</td>
+					</tr>
+			
+					<tr>
+						<td colspan="2" style="background-position: top center; background-repeat: no-repeat;" id="part_bg">
+							&nbsp;
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td></tr>
+	
+	</table>
+
+	</td>
+
+</tr>
+
+<tr>
+	<td style="background: white;"></td>
+</tr>
+
+</table>
+
+</body>
+</html>

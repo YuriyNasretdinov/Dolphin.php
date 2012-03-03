@@ -1,0 +1,577 @@
+
+body
+{
+	overflow: hidden;
+}
+
+body, html
+{
+	width: 100%;
+	height: 100%;
+}
+
+body
+{
+	background-color: white;
+	background-image: url(ni/body-bg.png);
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+div, span
+{
+	padding: 0px;
+	margin: 0px;
+}
+
+#address
+{
+	border: 0px;
+	outline-width: 0px; /* tell WebKit not to draw glow around the text field */
+}
+
+/* GGGR */
+
+.GGGR
+{
+	/* height: 500px; */
+	overflow-y: hidden;
+	overflow-x: auto;
+	z-index: 1;
+}
+
+.gggr_head
+{
+	
+}
+
+.gggr_head_table
+{
+	border-top: 1px transparent solid;
+	border-left: 1px transparent solid;
+
+	-moz-border-radius: 15px 15px 0px 0px;
+	-webkit-border-radius: 15px 15px 0px 0px;
+	border-radius: 15px 15px 0px 0px;
+	
+	background-color: #ececec;
+	background-image: url(ni/filelist-head-bg.png) !important;
+	/*background-position: -69px -0px;*/
+	background-repeat: repeat-x;
+}
+
+.gggr_body
+{
+	background-color: #fdfdfd;
+	background-image: url(ni/filelist-body-bg.png);
+	background-position: top;
+	background-repeat: repeat-x;
+	height: 100%;
+	width: auto;
+	display: inline-block;
+	*display: inline;
+
+	cursor: default;
+}
+
+.gggr_body_table
+{
+	
+	border-top: 1px #aeaeae solid;
+	border-left: 1px transparent solid;
+}
+
+.gggr_th_header
+{
+	border-bottom: 0px !important;
+
+	font-family: Verdana !important;
+	font-weight: bold;
+	font-size: 15px !important;
+	color: #595959;
+	
+}
+
+.gggr_cell
+{
+	border-bottom: 1px transparent solid;
+	border-right: 0px transparent solid;
+
+	border-top: 0px !important;
+	border-left: 0px !important;
+	/*border-width: 1px !important;*/
+
+	padding: 3px;
+
+	font-family: Arial, serif;
+	font-size: 14px;
+}
+
+.gggr_header
+{
+	height: 20px;
+	overflow: hidden;
+	text-align: center;
+}
+
+.gggr_highlight
+{
+	background: #F8FF16;
+}
+
+.gggr_filter
+{
+	position: absolute;
+	background: white;
+	width: 200px;
+	border: 1px black solid;
+
+	z-index: 888;
+
+	-moz-box-align: center;
+	-moz-box-shadow: 5px 5px 5px gray;
+	-webkit-box-shadow: 5px 5px 5px gray;
+
+}
+
+.gggr_filter_content
+{
+	text-align: center;
+}
+
+.gggr_loading
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+
+	background: white;
+	color:      black;
+
+	border: 1px red solid;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+
+	display: inline-block;
+}
+
+a
+{
+	color: blue;
+}
+/* frameset */
+
+body
+{
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+input
+{
+    font-size: 14px
+}
+
+#name_of_folder
+{
+    cursor: default;
+    font-family: "Trebuchet MS", "MS Trebuchet", Trebuchet, Tahoma;
+    font-size: 13px;
+    color: black;
+    font-weight: bold;
+    background: url("i/bg_all_v.png");
+    padding-left: 3px;
+    vertical-align: top;
+    padding-top: 7px;
+    overflow: hidden;
+}
+
+#upperpanel
+{
+    vertical-align: top;
+    background: url("i/bg_all_v.png") 0px -31px;
+}
+
+#footer, #footer_upload_btn
+{
+	height: 39px;
+}
+
+#footer
+{
+	background: #f4f4f4;
+	background-image: url(ni/bottom-bg.png);
+	overflow: hidden;
+	width: 100%;
+
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+
+	-moz-box-shadow: -1px -3px 8px rgba(0,0,0,0.3);
+	-webkit-box-shadow: -1px -3px 8px rgba(0,0,0,0.3);
+	box-shadow: -1px -3px 8px rgba(0,0,0,0.3);
+	
+	z-index: 1000;
+
+	padding: 0px;
+}
+
+#footer_descr, #footer_state, #footer_dolphin_btn, #footer_upload_btn
+{
+	font-family: Verdana;
+	font-size: 14px;
+
+	white-space: nowrap;
+
+	padding-left: 20px;
+}
+
+#footer_dolphin
+{
+	position: absolute;
+	left: 85px;
+	bottom: 0px;
+	z-index: 1001;
+
+	background-image: url(ni/dolphin.png);
+	background-position: -0px -0px;
+}
+
+#footer_dolphin_btn div, #footer_upload_btn div
+{
+	font-size: 16px;
+	font-weight: bold;
+	color: #232323;
+	display: inline-block;
+	border-bottom: 1px #232323 dashed;
+
+	margin-top: 9px;
+
+	*display: inline;
+	
+}
+
+#footer_dolphin_btn a, #footer_upload_btn a
+{
+	color: #232323;
+	text-decoration: none !important;
+}
+
+#footer_upload_btn
+{
+	background-image: url(ni/bottom-bg.png);
+	z-index: 1001;
+
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+
+	padding: 0px 20px 0px 20px;
+
+	display: inline-block;
+	*display: inline;
+
+	
+}
+
+.panel
+{
+    background: #f2f2ee
+}
+
+.leftbg
+{
+    background: url("i/leftbg.png") left repeat-y
+}
+
+.rightbg
+{
+    background: url("i/rightbg.png")
+}
+
+.menuelm_hover
+{
+    background: #b2b4bf
+}
+
+.sepbg
+{
+    background: url("i/bg_all_v.png") 0px -107px
+}
+
+.addressbar
+{
+    background: url("i/bg_all_v.png") 0px -84px;
+    vertical-align: middle;
+}
+
+#address
+{
+    height: 20px;
+    width: 100%;
+    padding-left: 3px;
+    font-family: Arial;
+    font-size: 14px;
+    border: 1px solid transparent;
+
+	background: #f9f9f9;
+}
+
+#address_div
+{
+	height: 58px;
+	position: absolute;
+	top: 0px;
+	left: 139px;
+	background: url(ni/top-bg.png) top repeat-x;
+	padding-top: 10px;
+}
+
+.btmbg
+{
+    vertical-align: middle;
+    background: url("i/bg_all_v.png") 0px -56px;
+    padding-left: 5px;
+    cursor: default;
+}
+
+.left_menu_head
+{
+	padding-top: 5px;
+
+    background: url('i/left_menu_head.png') left no-repeat;
+    padding-left: 5px;
+    font-weight: bold;
+    text-decoration: none;
+
+	font-family: Verdana, sans-serif;
+	color: white;
+	font-size: 14px;
+}
+
+.left_menu_body
+{
+	font-family: Verdana, sans-serif;
+	color: white;
+	font-size: 12px;
+
+    padding-left: 16px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-right: 13px;
+}
+
+.left_menu_body a
+{
+    color: white;
+}
+
+#main_div
+{
+    width: 80%;
+    min-width: 500px;
+    height: 100%;
+}
+
+#debug
+{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: white;
+    color: black;
+}
+
+.left_menu_div
+{
+	background: #585959;
+	background-color: rgba(65,65,65,0.8);
+	
+	padding-top: 10px;
+	padding-bottom: 10px;
+	-moz-border-radius: 0px 15px 15px 0px;
+	-webkit-border-radius: 0px 15px 15px 0px;
+	border-radius: 0px 15px 15px 0px;
+}
+
+#left_menu
+{
+	
+}
+
+#files
+{
+    width: 100%;
+    overflow: auto;
+}
+
+#left, #main
+{
+    padding: 0px;
+    margin: 0px;
+    vertical-align: top;
+}
+
+#status_str
+{
+    height: 27px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+/* main */
+
+div.d16
+{
+    padding-left: 3px;
+    height: 17px;
+}
+
+img.i16
+{
+    margin-right: 2px
+}
+
+.item16, .item16_h
+{
+    cursor: default;
+    padding-bottom: 4px;
+    padding-right: 6px;
+}
+
+.item16
+{
+    background: white
+}
+
+.item16_h
+{
+    background: #b2b4bf
+}
+
+div.msg
+{
+    height: 100%;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.rename_inp
+{
+    border: 1px black solid;
+    padding-left: 3px;
+}
+
+/* left menu */
+
+input.fsearch_g, input.fsearch
+{
+    height: 20px;
+    width: 100%;
+    background: white url('i/menu_all.png') no-repeat;
+    background-position: -0px -144px;
+    padding-left: 18px;
+    border: 1px #c4c8d4 solid;
+}
+
+input.fsearch_g
+{
+    color: gray
+}
+
+input.fsearch
+{
+    color: black
+}
+
+input.upl
+{
+    width: 160px;
+    font-size: 9px;
+}
+
+/* upper panel */
+
+tr.upper th
+{
+    font-weight: normal;
+    font-size: 11px;
+    background: url('i/bg_all_v.png');
+    background-position: -0px -110px;
+    text-align: left;
+    overflow: hidden;
+}
+
+tr.upper th.h
+{
+    background-position: -0px -131px
+}
+
+tr.upper th.d
+{
+    background-position: -0px -152px
+}
+
+tr.upper th.bg
+{
+    background-position: -0px -173px
+}
+
+tr.menu td
+{
+    cursor: default
+}
+
+/* context menu */
+
+.cm
+{
+    visibility: hidden;
+    display: none;
+    position: absolute;
+    border-color: #9D9DA1 #000000 #000000 #9D9DA1;
+    border-style: solid;
+    border-width: 1px;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+    background-color: white;
+    z-index: 100;
+}
+
+.cm_black, .cm_black td
+{
+    COLOR: black;
+    TEXT-DECORATION: none;
+    font-family: Tahoma;
+    font-size: 8pt;
+    cursor: default;
+    border: 0px solid #000000;
+}
+
+.cm_black_hover, .cm_black_hover td
+{
+    white-space: pre;
+    COLOR: white;
+    TEXT-DECORATION: none;
+    background-color: #6D6D6F;
+}
+
+.cm_gray, .cm_gray td
+{
+    COLOR: #A7A7A5;
+    TEXT-DECORATION: none;
+    font-family: Tahoma;
+    font-size: 8pt;
+    cursor: default;
+    border: 0px solid #000000;
+}
+
+.cm_gray_hover, .cm_gray_hover td
+{
+    TEXT-DECORATION: none;
+    background-color: #6D6D6F;
+}
+
+/* td { border: 1px red solid; } */
