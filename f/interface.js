@@ -322,14 +322,17 @@ var InterfaceClass = function(){
 	{
 		for(var k in {fwd:'',back:'',up:''})
 		{
+			var el = document.getElementById('btn_'+k),
+			    el_dis = document.getElementById('btn_'+k+'_disabled');
+			if (!el || !el_ds) continue;
 			if(!E['can_go_'+k]())
 			{
-				document.getElementById('btn_'+k).style.display='none';
-				document.getElementById('btn_'+k+'_disabled').style.display='';
+				el.style.display='none';
+				el_dis.style.display='';
 			}else
 			{
-				document.getElementById('btn_'+k).style.display='';
-				document.getElementById('btn_'+k+'_disabled').style.display='none';
+				el.style.display='';
+				el_dis.style.display='none';
 			}
 			
 		}

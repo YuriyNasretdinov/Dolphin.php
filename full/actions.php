@@ -17,162 +17,40 @@ if(!empty($_REQUEST['items']))
 	foreach($_REQUEST['items'] as $v) $fz[]=clean($v/*['fullpath']*/);
 	$f=$fz[0];
 }
-//set_magic_quotes_runtime(0);
-
-/*
-if(get_magic_quotes_gpc()) ...
-*/
 
 switch(@$_REQUEST['act'])
 {
 case 'filelist':
-	if(0)
-	{
-		
-		if(!read_directory())
-		{
-			$_RESULT = array ( 'error' => true, 'reason' => reason(), 'dir' => $_SESSION['DIR'], 'stop' => false );
-			if(abs_path($_SESSION['DIR'])==abs_path(HOMEDIR)) $_RESULT['stop']=true;
-			break;
-		}
-		
-		$sz=$fsizes ? array_sum($fsizes) : 0;
-		
-		$items=array(); // items = { 0: { name, icon, type[, ... (data)] }, ... }
-		
-		if(!empty($drives)) // My computer is opened
-		{
-			$items[] = array(
-			  'name' => lang('Home directory'),
-			  'icon' => (HOMEDIR==lang('My computer') ? 'mycomp' : 'folder'),
-			  'type' => tDIR,
-			  'fullpath' => HOMEDIR,
-			);
-			
-			if(!empty($_ENV['windir']))
-				$items[] = array(
-				   'name' => lang('Windows directory'),
-				   'icon' => 'folder',
-				   'type' => tDIR,
-				   'fullpath' => $_ENV['windir'],
-				);
-			
-			if(!empty($_ENV['ProgramFiles']))
-				$items[] = array(
-				   'name' => lang('Program files'),
-				   'icon' => 'folder',
-				   'type' => tDIR,
-				   'fullpath' => $_ENV['ProgramFiles'],
-				);
-			
-			
-			foreach($drives as $v)
-				$items[] = array(
-				  'name' => (!empty($v['label']) ? $v['label'] : $descr[$v['type']] ).' ('.strtoupper(substr($v['name'],0,2)).')',
-				  'icon' => $v['type'],
-				  'type' => tDRIVE,
-				  'fullpath' => strtoupper($v['name']),
-				  'descr' => $descr[$v['type']],
-				  'free' => $v['type']=='hdd' && ($s = disk_free_space($v['name']))!==false ? show_size(true,true,$s) : false,
-				  'total' => $v['type']=='hdd' && ($s = disk_total_space($v['name']))!==false ? show_size(true,true,$s) : false,
-				  'fs' => $v['fs'],
-				);
-		}else
-		{	
-			foreach($dirs as $v)
-				$items[] = array(
-				  'name' => htmlspecialchars(basename($v)),
-				  'icon' => 'folder',
-				  'type' => tDIR,
-				  'fullpath' => $v,
-				);
-	
-			foreach($files as $v)
-				$items[] = array(
-				  'name' => htmlspecialchars(basename($v)),
-				  'icon' => 'f-'./*extension*/ (isset($av_ext[$ext=strtolower((($p = strrpos($v, '.')) !== false) ? substr($v, $p+1) : '')]) ? $ext : ''),
-				  'type' => tFILE,
-				  'fullpath' => $v,
-				);
-		}
-		
-		if(strlen($_SESSION['DIR'])<=3 && strlen($_SESSION['DIR'])>1 && $_SESSION['DIR'][1]==':')
-		{
-			$req = array( 'type' => tDRIVE, 'icon' => 'unknown' );
-			
-			foreach (get_logical_drives() as $v)
-			{
-				if(strtolower($v['name'][0]) == strtolower($_SESSION['DIR'][0]))
-				{
-					$req['icon'] = $v['type'];
-					$req['name']=(!empty($v['label']) ? $v['label'] : $descr[$v['type']] ).' ('.strtoupper(substr($v['name'],0,2)).')';
-					$req['fs'] = $v['fs'];
-				}
-			}
-		}else $req = array ( 'type' => tDIR );
-	}
-	
 	$mypage = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
 	
 	$_REQUEST['params'] = array(
 		'perpage' => 1,
-		'pagemin' => $_REQUEST['start']+1,
-		'pagemax' => $_REQUEST['start']+$_REQUEST['length'],
+		'pagemin' => 1,
+		'pagemax' => 1,
 		'filt'    => isset($_REQUEST['filter']) ? $_REQUEST['filter'] : false,
 	);
 	
 	$res=read_directory(true,$_REQUEST['params']);
-	
-	//print_r($res);
-	/*
-	foreach($res['pages'] as $k=>$v)
-	{
-		if(isset($res['pages'][$k]['files']['name'])) $res['pages'][$k]['files']['name'] = array_map('htmlspecialchars', $res['pages'][$k]['files']['name']);
-		if(isset($res['pages'][$k]['dirs']['name'])) $res['pages'][$k]['dirs']['name'] = array_map('htmlspecialchars', $res['pages'][$k]['dirs']['name']);
-	}*/
-	
-	$items = $res['items'];
-	
-	chdir($_SESSION['DIR']);
-	
-	foreach($items as $k => $row)
-	{
-		$row['name'] = $row['name'];
-		$row['size'] = show_size(0,0, $row['size']);
-		$row['modifDate'] = human_date( filemtime($row['name']) );
-		$row['perm'] = get_rights( $row['name'], false );
-		$row['owner'] = get_owner($row['name']);
-		$row['group'] = get_group($row['name']);
-		$items[$k] = $row;
-	}
+	$first_files = explode("/", substr($res['res'], 0, 2000));
+	if (count($first_files)) array_pop($first_files);
 	
 	$_RESULT = array(
-		'res' => $items,
-		'count' => $res['cnt'],
-		'DIR' => $_SESSION['DIR'],
-		'stats' => stats(false),
-		//'size' => show_size(true,true,$sz),
-		'info' => get_info($_SESSION['DIR']),
-		'type' => (!empty($req['type']) && empty($drives) ? $req['type'] : (empty($drives) ? tDIR : tMYCOMP)),
-		'up' => $up,
-		'reason' => reason(),
+		'res'        => $res['res'],
+		'count'      => $res['cnt'],
+		'fileinfo'   => get_files_info($first_files),
+		'DIR'        => $_SESSION['DIR'],
+		'stats'      => stats(false),
+		'info'       => get_info($_SESSION['DIR']),
+		'type'       => (!empty($req['type']) && empty($drives) ? $req['type'] : (empty($drives) ? tDIR : tMYCOMP)),
+		'up'         => $up,
+		'reason'     => reason(),
 	);
-	
-	/*
-	$_RESULT=array(
-	'res' => $res,
-	'dir' => !empty($req['name']) ? $req['name'] : dirname($_SESSION['DIR']),
-	'DIR' => $_SESSION['DIR'],
-	'stats' => stats(false),
-	//'size' => show_size(true,true,$sz),
-	'info' => get_info($_SESSION['DIR']),
-	'type' => (!empty($req['type']) && empty($drives) ? $req['type'] : (empty($drives) ? tDIR : tMYCOMP)),
-	'up' => $up,
-	'reason' => reason(),
-	);
-	*/
-	
 	break;
+case 'files-info':
+    $_RESULT = array(
+        'info' => get_files_info($_REQUEST['files']),
+    );
+    break;
 case 'info':	
 	$_RESULT = get_info($f,$_REQUEST);
 	break;

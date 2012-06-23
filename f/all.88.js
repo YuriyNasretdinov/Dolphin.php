@@ -272,8 +272,7 @@ table: function(){
 
 		if(isDblClick)
 		{
-			//alert('Double-clicked '+idx+' (delta = '+delta+')');
-			if(row['is_dir']) I.change_address(name);
+			if(row.type == 'dir') I.change_address(name);
 			else E.edit_file_for_item(name);
 		}
 
@@ -352,11 +351,16 @@ table: function(){
 	var _last_clicked_time = null;
 	
 	var _filelist_pos = 0;
+
+	var _fileinfo = {
+		// name: { size: ..., type: ..., modified: ... }
+	};
+	var _pending_files = {/* name: true */};
+	var _in_progress = false;
+	T.filelist = [];
 	
 	T.df = T.draw_files = function(address, nohistory)
-	{
-		//console.log('draw files with address = '+address);
-		
+	{	
 		if(!grid_setup)
 		{
 			T.GRID = new GGGR();
@@ -364,21 +368,26 @@ table: function(){
 			
 			g.container = document.getElementById('content');
 			g.dataSource = {
-				type: 'remote',
-				backend: '?act=filelist',
-				data: {
-					DIR: address
+				type: 'local',
+				fetch: function(i) {
+					var name = T.filelist[i];
+					var info = _fileinfo[name];
+					if (!info) {
+						_pending_files[name] = true;
+						info = {};
+					}
+
+					return {
+						name: name,
+						nameNew: htmlspecialchars(name),
+						modified: info.modified || '',
+						size: info.size || '',
+						icon: info.type == 'dir' ? '<img src="f/iconz/16-folder.png" width=16 height=16 />' : T.file_icon(name),
+						type: info.type
+					};
 				},
-				cacheSize: 1000,
-				transformRow: function(res, idx)
-				{
-					res['name'] = res['name'] || '';
-					
-					res['icon'] = res['is_dir'] ? '<img src="f/iconz/16-folder.png" width="16" height="16" align="absmiddle" />' : T.file_icon(res['name']);
-					
-					res['nameNew'] = htmlspecialchars(res['name']);
-					
-					return res;
+				count: function() {
+					return Math.max(0, Math.min(500000, T.filelist.length - 1)); // last element is always empty
 				}
 			}
 			g.onDataLoaded = function(req)
@@ -388,13 +397,20 @@ table: function(){
 					E.add_to_history(req['DIR']);
 				}
 				grid_setup = true;
-				
+				_fileinfo = req.fileinfo;
+				T.filelist = req.res.split('/')
 				if(!_filelist_shown)
 				{
 					_filelist_shown = true;
-					D.onFileListLoaded(req);
+					try {
+						D.onFileListLoaded(req);
+					} catch(e) {
+						console.log(e)
+					}
+
 				}
 				
+				g.redraw();
 			};
 			g.updateInterval = 25;
 			
@@ -410,26 +426,7 @@ table: function(){
 					I.show_loading(true, 'Loading '+_load_queue_length+' filelist chunks');
 				}
 			}
-			
-			g.onBeginLoading = function()
-			{
-				//alert('begin loading');
-				
-				_load_queue_length++;
-				
-				update_loading_status();
-			}
-			
-			g.onFinishLoading = function()
-			{
-				//alert('finish loading');
-				
-				_load_queue_length--;
-				
-				if(!_load_queue_length) I.show_loading(false);
-				else update_loading_status();
-			}
-			
+
 			g.colorForRow = function(row, idx)
 			{
 				if(_selected[row['name']])
@@ -453,7 +450,7 @@ table: function(){
 				//owner: '</a>Owner<a>',
 				//group: '</a>Group<a>',
 				//perm: '</a>Permissions<a>',
-				modifDate: '</a>Modified<a>',
+				modified: '</a>Modified<a>',
 				size: '</a>Size<a>'
 			};
 			
@@ -472,15 +469,36 @@ table: function(){
 			
 			g.setup();
 			
+			D.qr('?act=filelist', {DIR: address}, g.onDataLoaded);
+			setInterval(function() {
+				if (_in_progress) return;
+				var pending = [];
+				for(var k in _pending_files) pending.push(k);
+				if (pending.length) {
+					_in_progress = true;
+					D.qr('?act=files-info', {files: pending}, function(res) {
+						_in_progress = false;
+
+						for (var k in res.info) {
+							_fileinfo[k] = res.info[k];
+						}
+
+						for (var i = 0; i < pending.length; i++) {
+							var name = pending[i];
+							delete _pending_files[name];
+							if (!_fileinfo[name]) _fileinfo[name] = {};
+						}
+						T.GRID.redraw();
+					});
+				}
+			}, 500);
 			
 		}else
 		{
-			T.GRID.dataSource.data.DIR    = address;
-			
 			var filt = document.getElementById('fsearch');
 			if(!filt) filt = '';
 			else filt = filt.value;
-			T.GRID.dataSource.data.filter = filt == L._search_str_default ? null : filt;
+			// T.GRID.dataSource.data.filter = filt == L._search_str_default ? null : filt;
 			
 			_new_directory = true;
 			_filelist_shown = false;
@@ -497,9 +515,14 @@ table: function(){
 				_last_clicked_time = null;
 			}
 			
-			T.GRID.abort();
-			
+			T.filelist = [];
+			_pending_files = {};
+			_fileinfo = {};
+			_in_progress = false;
+			D.abort();
+			D.qr('?act=filelist', {DIR: address}, T.GRID.onDataLoaded);
 			T.GRID.redraw(_filelist_pos);
+			
 		}
 	}
 	
@@ -1861,14 +1884,17 @@ var InterfaceClass = function(){
 	{
 		for(var k in {fwd:'',back:'',up:''})
 		{
+			var el = document.getElementById('btn_'+k),
+			    el_dis = document.getElementById('btn_'+k+'_disabled');
+			if (!el || !el_ds) continue;
 			if(!E['can_go_'+k]())
 			{
-				document.getElementById('btn_'+k).style.display='none';
-				document.getElementById('btn_'+k+'_disabled').style.display='';
+				el.style.display='none';
+				el_dis.style.display='';
 			}else
 			{
-				document.getElementById('btn_'+k).style.display='';
-				document.getElementById('btn_'+k+'_disabled').style.display='none';
+				el.style.display='';
+				el_dis.style.display='none';
 			}
 			
 		}
@@ -2668,7 +2694,7 @@ var DolphinClass = function(){
 		
 	}
 	
-	T.onFileListLoaded = function(res)
+	T.onFileListLoaded = function(res, err)
 	{
 		if(res && res['res'] && !res['error'])
 		{
@@ -2685,8 +2711,6 @@ var DolphinClass = function(){
 			_addr_el.value = E.address = res['DIR'];
 
 			document.title = E.basename(res['DIR']) + ' / ' + window.init_title;
-			
-			R.GRID.dataSource.data.DIR = res['DIR'];
 			
 			//R.df();
 			

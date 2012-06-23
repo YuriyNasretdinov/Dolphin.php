@@ -208,7 +208,7 @@ var DolphinClass = function(){
 		
 	}
 	
-	T.onFileListLoaded = function(res)
+	T.onFileListLoaded = function(res, err)
 	{
 		if(res && res['res'] && !res['error'])
 		{
@@ -225,8 +225,6 @@ var DolphinClass = function(){
 			_addr_el.value = E.address = res['DIR'];
 
 			document.title = E.basename(res['DIR']) + ' / ' + window.init_title;
-			
-			R.GRID.dataSource.data.DIR = res['DIR'];
 			
 			//R.df();
 			

@@ -28,7 +28,7 @@ define('BUILD',88);
 
 define('FVER', BUILD); /* file (js, css) version */
 
-if(IS_DEVELOPER) define('LAST_UPDATE', filemtime(ROOT.'/../dolphin.zip'));
+// if(IS_DEVELOPER) define('LAST_UPDATE', filemtime(ROOT.'/../dolphin.zip'));
 
 define('VERSION','0.9');
 define('SNAME','Dolphin.php'); /* the short name of product */

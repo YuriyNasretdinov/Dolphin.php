@@ -13,7 +13,7 @@ $CFG = array(
 'tmpdir' => false,
 );
 
-define('HOMEDIR',ROOT); // the first directory, where you go
+define('HOMEDIR', ROOT . '/..'); // the first directory, where you go
 
 // performance
 define('USE_RESAMPLE',true);

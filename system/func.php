@@ -809,11 +809,8 @@ function read_directory($use_extreme = false, $params = array())
 		extract($arr,EXTR_OVERWRITE);
 	}else
 	{
-		//$res = d_filelist_extreme($dir, $params);
-		
 		session_write_close();
-		
-		$res = d_filelist_cached( $dir, $_REQUEST['start'], $_REQUEST['length'], isset($_REQUEST['filter']) ? $_REQUEST['filter'] : '' );
+		$res = d_filelist_simple($dir);
 	}
 	
 	
@@ -841,9 +838,6 @@ function read_directory($use_extreme = false, $params = array())
 		return true;
 	}else
 	{
-		define('DIRS',0);
-		define('FILES',$res['items_num']);
-		
 		return $res;
 	}
 }
@@ -1143,6 +1137,35 @@ function d_filesize($f)
 	return false;
 }
 
+function get_files_info($files) {
+    if (!count($files)) return array();
+
+    $old_dir = getcwd();
+    chdir($_SESSION['DIR']);
+    $result = array();
+    $sizes = array();
+    // a more reliable way of computing size
+    if (is_callable('exec') && in_array(php_uname('s'), array('Linux', 'FreeBSD', 'Darwin'))) {
+        $filepaths = array();
+        foreach ($files as $f) $filepaths[] = escapeshellarg('./' . $f);
+        exec("stat -f '%z' " . implode(' ', $filepaths), $out, $retval);
+        if ($retval == 0 && count($out) == count($files)) {
+            foreach ($out as $i => $sz) {
+                $sizes[$files[$i]] = $sz;
+            }
+        }
+    }
+
+    foreach ($files as $f) {
+        $result[$f] = array(
+            'modified' => human_date(filemtime($f)),
+            'size'     => show_size($f, true, isset($sizes[$f]) ? $sizes[$f] : filesize($f)),
+            'type'     => is_dir($f) ? 'dir' : 'file',
+        );
+    }
+    chdir($old_dir);
+    return $result;
+}
 
 /**
  * The function returns the type of file $f (for example, JPEG File)
@@ -1733,13 +1756,18 @@ function exec_command($command, $col=80)
 				putenv('ROWS=24');
 				putenv('COLUMNS='.$col);
 			#}
+
+            $separator = uniqid();
+
+//            $command .= '; echo '.$separator.' $?';
+
+//            $command .= '; echo '.$separator.'; set; echo '.$separator.'; /bin/pwd';
 			
-			// code is taken from PHP Shell 
+			// code is taken from PHP Shell
 			if($p = proc_open($command, array(1 => array('pipe', 'w'), 2 => array('pipe', 'w')), $io))
 			{
 				$out = array('');
-				while (!feof($io[1])) $out[0] .= fgets($io[1],1024);
-				while (!feof($io[2])) $out[0] .= fgets($io[2],1024);
+				$out[0] .= stream_get_contents($io[1]).stream_get_contents($io[2]);
 				
 				fclose($io[1]);
 	            fclose($io[2]);
