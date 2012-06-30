@@ -732,22 +732,9 @@ function get_logical_drives()
 	return $drives;
 }
 
-/**
- * Reads all accessible files in current directory, and puts into global scope:
- * 
- * $dir   - directory name
- * $dirs  - sorted list of directories
- * $files - sorted list of files
- * $up    - either path to upper directory or FALSE if upper dir is not available
- * 
- * If parameteres $_GET['sort'] and $_GET['order'] specified, and $_GET['sort']=='name', it will sort the arrays in the specified order.
- * If $_GET['sort'] is not specified, the list will be natsorted in ascending order.
- *
- * @return bool
- */
-function read_directory($use_extreme = false, $params = array())
+function read_directory()
 {
-	global $dir,$dirs,$files,$up,$drives,$php_errormsg,$fsizes;
+	global $php_errormsg;
 	
 	if(empty($_SESSION['DIR'])) $_SESSION['DIR']=abs_path(HOMEDIR);
 	
@@ -768,78 +755,20 @@ function read_directory($use_extreme = false, $params = array())
 	$l = strlen($r);
 	
 	if(getenv('COMSPEC') &&  ($l==5 || $l==6) && substr($r,-2)=='..' /* A:/.. || A://.. */ && (abs_path($r)) == substr($r,0,2).'/') $_REQUEST['DIR'] = $c;
-	
-	if(getenv('COMSPEC') && $_REQUEST['DIR']=='My computer')
-	{
-		$dirs=$files=array();
-		if(@$drives = get_logical_drives())
-		{
-			foreach($drives as $v) $dirs[]=strtoupper($v['name']);
-			
-			$dir=$_SESSION['DIR']=$c;
-			$up=false;
-			
-			define('DIRS',sizeof($dirs));
-			define('FILES',sizeof($files));
-			
-			if(!$use_extreme)
-			{
-				return true;
-			}else
-			{
-				/* TODO: split to pages normally */
-				return array('pages' => array( 1 => array('dirs' => array( 'name' => $dirs ))), 'pages_num' => 1, 'items_num' => DIRS+FILES );
-			}
-		}
-	}
-	
-	global $fsizes;
-	
-	$_SESSION['DIR']=$dir;
-	
-	if(!$use_extreme)
-	{
-		if(!($arr = d_filelist_fast($dir)))
-		{
-			define('FILES',0);
-			define('DIRS',0);
-			return d_error('Cannot get file list');
-		}
-	
-		extract($arr,EXTR_OVERWRITE);
-	}else
-	{
-		session_write_close();
-		$res = d_filelist_simple($dir);
-	}
-	
-	
-	
-	$up=$_SESSION['DIR'].'/..';
+
+    $dh = opendir($dir);
+    if (!$dh) return d_error("Cannot open $dir");
+    $_SESSION['DIR']=$dir;
+    session_write_close();
+
+    $res = d_filelist_simple($dh);
+	closedir($dh);
+
 	if(abs_path($_SESSION['DIR']) == '/') $up = false;
-	
-	if(!$use_extreme)
-	{
-		if(empty($_GET['sort'])){natsort($dirs);natsort($files);}
-		else if($_GET['sort']=='name')
-		{
-			natsort($dirs);
-			natsort($files);
-			if(@$_GET['order']=='desc')
-			{
-				$dirs=array_reverse($dirs);
-				$files=array_reverse($files);
-			}
-		}
-		
-		define('DIRS',sizeof($dirs));
-		define('FILES',sizeof($files));
-		
-		return true;
-	}else
-	{
-		return $res;
-	}
+    else $up = dirname($_SESSION['DIR']);
+	$res['up'] = $up;
+
+    return $res;
 }
 
 /**

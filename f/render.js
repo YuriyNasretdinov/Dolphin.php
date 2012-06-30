@@ -72,11 +72,12 @@ table: function(){
 	// offsets for different extensions in f/iconz/16-f.png
 	var _ext = {_default: 0, ace: 1, app: 2, avi: 3, bat: 4, bmp: 5, chm: 6, com: 7, css: 8, divx: 9, dll: 10, doc: 11, exe: 12, fon: 13, gif: 14, gz: 15, hlp: 16, htaccess: 17, htm: 18, html: 19, htpasswd: 20, inc: 21, ini: 22, jpe: 23, jpeg: 24, jpg: 25, js: 26, lnk: 27, log: 28, mdb: 29, mid: 30, midi: 31, mov: 32, mp3: 33, mpeg: 34, mpg: 35, pdf: 36, php: 37, php3: 38, phtml: 39, pl: 40, png: 41, psd: 42, ptt: 43, rar: 44, rtf: 45, shtm: 46, shtml: 47, sys: 48, tar: 49, ttf: 50, txt: 51, wav: 52, wbmp: 53, wma: 54, zip: 55};
 	
-	T.file_icon = T.fi = function(path)
+	T.file_icon = T.fi = function(path, background)
 	{
+        background = background || "f/iconz/16-f.png";
 		var e = E.ge(path).toLowerCase();
-		
-		return '<img src="f/i/no.png" width=16 height=16 border=0 style="background: url(\'f/iconz/16-f.png\'); background-position: 0px '+(_ext[e] ? -_ext[e]*16 : 0)+'px" align="absmiddle">';
+
+		return '<div class="file-icon" style="background: url(\'' + background + '\'); background-position: 0px '+(_ext[e] ? -_ext[e]*16 : 0)+'px"></div>';
 	};
 	
 	
@@ -186,9 +187,7 @@ table: function(){
 		_last_clicked_idx = idx;
 		_last_clicked_time = new Date();
 	}
-	
-	var _load_queue_length = 0;
-	var _new_directory = true;
+
 	var _filelist_shown = false;
 	
 	var _last_clicked_idx = -1;
@@ -202,8 +201,28 @@ table: function(){
 	var _pending_files = {/* name: true */};
 	var _in_progress = false;
 	T.filelist = [];
-	
-	T.df = T.draw_files = function(address, nohistory)
+    T.filtered_filelist = [];
+
+    var _last_filter = '';
+
+    T.filter = function(str, skip_redraw) {
+        if (!str) {
+            T.filtered_filelist = T.filelist;
+
+        } else {
+            T.filtered_filelist = [];
+            var l = T.filelist.length;
+            for (var i = 0; i < l; i++) {
+                if (T.filelist[i].indexOf(str) > -1) T.filtered_filelist.push(T.filelist[i]);
+            }
+            T.filtered_filelist.push('');
+        }
+        _last_filter = '' + str;
+
+        if(!skip_redraw) T.GRID.redraw();
+    }
+
+	T.df = T.draw_files = function(address, reload)
 	{	
 		if(!grid_setup)
 		{
@@ -214,7 +233,7 @@ table: function(){
 			g.dataSource = {
 				type: 'local',
 				fetch: function(i) {
-					var name = T.filelist[i];
+					var name = T.filtered_filelist[i];
 					var info = _fileinfo[name];
 					if (!info) {
 						_pending_files[name] = true;
@@ -226,23 +245,25 @@ table: function(){
 						nameNew: htmlspecialchars(name),
 						modified: info.modified || '',
 						size: info.size || '',
-						icon: info.type == 'dir' ? '<img src="f/iconz/16-folder.png" width=16 height=16 />' : T.file_icon(name),
+						icon: T.file_icon(name, info.type == 'dir' ? 'f/iconz/16-folder.png' : ''),
 						type: info.type
 					};
 				},
 				count: function() {
-					return Math.max(0, Math.min(500000, T.filelist.length - 1)); // last element is always empty
+					return Math.max(0, Math.min(500000, T.filtered_filelist.length - 1)); // last element is always empty
 				}
 			}
-			g.onDataLoaded = function(req)
+			g.onDataLoaded = function(req, need_filter)
 			{
-				if(!grid_setup)
-				{
-					E.add_to_history(req['DIR']);
-				}
-				grid_setup = true;
-				_fileinfo = req.fileinfo;
-				T.filelist = req.res.split('/')
+                if (!req['error']) {
+                    _in_progress = false;
+                    grid_setup = true;
+                    _fileinfo = req.fileinfo;
+                    T.filelist = req.res.split('/');
+                    if (need_filter) T.filter(_last_filter, true);
+                    else             T.filtered_filelist = T.filelist;
+                }
+
 				if(!_filelist_shown)
 				{
 					_filelist_shown = true;
@@ -257,19 +278,6 @@ table: function(){
 				g.redraw();
 			};
 			g.updateInterval = 25;
-			
-			var update_loading_status = function()
-			{
-				if(_load_queue_length == 1)
-				{
-					I.show_loading(true, _new_directory ? 'Preparing '+( L._search_str == L._search_str_default || !L._search_str.length ? 'full' : 'filtered' )+' filelist for opened directory <small>(might take a while)</small>' : 'Loading filelist chunk');
-					_new_directory = false;
-				}else if(_load_queue_length > 1)
-				{
-					I.show_loading(false);
-					I.show_loading(true, 'Loading '+_load_queue_length+' filelist chunks');
-				}
-			}
 
 			g.colorForRow = function(row, idx)
 			{
@@ -316,11 +324,12 @@ table: function(){
 			D.qr('?act=filelist', {DIR: address}, g.onDataLoaded);
 			setInterval(function() {
 				if (_in_progress) return;
-				var pending = [];
+				var pending = [], old_dir = D.get_dir();
 				for(var k in _pending_files) pending.push(k);
 				if (pending.length) {
 					_in_progress = true;
 					D.qr('?act=files-info', {files: pending}, function(res) {
+                        if (D.get_dir() != old_dir) return;
 						_in_progress = false;
 
 						for (var k in res.info) {
@@ -339,33 +348,25 @@ table: function(){
 			
 		}else
 		{
-			var filt = document.getElementById('fsearch');
-			if(!filt) filt = '';
-			else filt = filt.value;
-			// T.GRID.dataSource.data.filter = filt == L._search_str_default ? null : filt;
-			
-			_new_directory = true;
-			_filelist_shown = false;
-			
-			if(!nohistory)
-			{
-				_filelist_pos = 0;
-				
-				_selected = {};
-				_selected_len = 0;
-				//_last_selected = null;
-				
-				_last_clicked_idx = -1;
-				_last_clicked_time = null;
-			}
-			
-			T.filelist = [];
-			_pending_files = {};
-			_fileinfo = {};
-			_in_progress = false;
-			D.abort();
-			D.qr('?act=filelist', {DIR: address}, T.GRID.onDataLoaded);
-			T.GRID.redraw(_filelist_pos);
+			D.qr('?act=filelist', {DIR: address}, function(req) {
+                if (!req.error) {
+                    _filelist_shown = false;
+
+                    if(!reload)
+                    {
+                        _filelist_pos = 0;
+
+                        _selected = {};
+                        _selected_len = 0;
+
+                        _last_clicked_idx = -1;
+                        _last_clicked_time = null;
+                    }
+                }
+
+                T.GRID.onDataLoaded(req, reload);
+                T.GRID.redraw(_filelist_pos);
+            });
 			
 		}
 	}

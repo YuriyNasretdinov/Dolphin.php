@@ -228,11 +228,12 @@ table: function(){
 	// offsets for different extensions in f/iconz/16-f.png
 	var _ext = {_default: 0, ace: 1, app: 2, avi: 3, bat: 4, bmp: 5, chm: 6, com: 7, css: 8, divx: 9, dll: 10, doc: 11, exe: 12, fon: 13, gif: 14, gz: 15, hlp: 16, htaccess: 17, htm: 18, html: 19, htpasswd: 20, inc: 21, ini: 22, jpe: 23, jpeg: 24, jpg: 25, js: 26, lnk: 27, log: 28, mdb: 29, mid: 30, midi: 31, mov: 32, mp3: 33, mpeg: 34, mpg: 35, pdf: 36, php: 37, php3: 38, phtml: 39, pl: 40, png: 41, psd: 42, ptt: 43, rar: 44, rtf: 45, shtm: 46, shtml: 47, sys: 48, tar: 49, ttf: 50, txt: 51, wav: 52, wbmp: 53, wma: 54, zip: 55};
 	
-	T.file_icon = T.fi = function(path)
+	T.file_icon = T.fi = function(path, background)
 	{
+        background = background || "f/iconz/16-f.png";
 		var e = E.ge(path).toLowerCase();
-		
-		return '<img src="f/i/no.png" width=16 height=16 border=0 style="background: url(\'f/iconz/16-f.png\'); background-position: 0px '+(_ext[e] ? -_ext[e]*16 : 0)+'px" align="absmiddle">';
+
+		return '<div class="file-icon" style="background: url(\'' + background + '\'); background-position: 0px '+(_ext[e] ? -_ext[e]*16 : 0)+'px"></div>';
 	};
 	
 	
@@ -342,9 +343,7 @@ table: function(){
 		_last_clicked_idx = idx;
 		_last_clicked_time = new Date();
 	}
-	
-	var _load_queue_length = 0;
-	var _new_directory = true;
+
 	var _filelist_shown = false;
 	
 	var _last_clicked_idx = -1;
@@ -358,8 +357,29 @@ table: function(){
 	var _pending_files = {/* name: true */};
 	var _in_progress = false;
 	T.filelist = [];
-	
-	T.df = T.draw_files = function(address, nohistory)
+    T.filtered_filelist = [];
+
+    var _last_filter = '';
+
+    T.filter = function(str, skip_redraw) {
+        if (!str) {
+            T.filtered_filelist = T.filelist;
+            return;
+        }
+
+        T.filtered_filelist = [];
+        var l = T.filelist.length;
+        for (var i = 0; i < l; i++) {
+            if (T.filelist[i].indexOf(str) > -1) T.filtered_filelist.push(T.filelist[i]);
+        }
+        T.filtered_filelist.push('');
+
+        _last_filter = '' + str;
+
+        if(!skip_redraw) T.GRID.redraw();
+    }
+
+	T.df = T.draw_files = function(address, reload)
 	{	
 		if(!grid_setup)
 		{
@@ -370,7 +390,7 @@ table: function(){
 			g.dataSource = {
 				type: 'local',
 				fetch: function(i) {
-					var name = T.filelist[i];
+					var name = T.filtered_filelist[i];
 					var info = _fileinfo[name];
 					if (!info) {
 						_pending_files[name] = true;
@@ -382,23 +402,25 @@ table: function(){
 						nameNew: htmlspecialchars(name),
 						modified: info.modified || '',
 						size: info.size || '',
-						icon: info.type == 'dir' ? '<img src="f/iconz/16-folder.png" width=16 height=16 />' : T.file_icon(name),
+						icon: T.file_icon(name, info.type == 'dir' ? 'f/iconz/16-folder.png' : ''),
 						type: info.type
 					};
 				},
 				count: function() {
-					return Math.max(0, Math.min(500000, T.filelist.length - 1)); // last element is always empty
+					return Math.max(0, Math.min(500000, T.filtered_filelist.length - 1)); // last element is always empty
 				}
 			}
-			g.onDataLoaded = function(req)
+			g.onDataLoaded = function(req, need_filter)
 			{
-				if(!grid_setup)
-				{
-					E.add_to_history(req['DIR']);
-				}
-				grid_setup = true;
-				_fileinfo = req.fileinfo;
-				T.filelist = req.res.split('/')
+                if (!req['error']) {
+                    _in_progress = false;
+                    grid_setup = true;
+                    _fileinfo = req.fileinfo;
+                    T.filelist = req.res.split('/');
+                    if (need_filter) T.filter(_last_filter, true);
+                    else             T.filtered_filelist = T.filelist;
+                }
+
 				if(!_filelist_shown)
 				{
 					_filelist_shown = true;
@@ -413,19 +435,6 @@ table: function(){
 				g.redraw();
 			};
 			g.updateInterval = 25;
-			
-			var update_loading_status = function()
-			{
-				if(_load_queue_length == 1)
-				{
-					I.show_loading(true, _new_directory ? 'Preparing '+( L._search_str == L._search_str_default || !L._search_str.length ? 'full' : 'filtered' )+' filelist for opened directory <small>(might take a while)</small>' : 'Loading filelist chunk');
-					_new_directory = false;
-				}else if(_load_queue_length > 1)
-				{
-					I.show_loading(false);
-					I.show_loading(true, 'Loading '+_load_queue_length+' filelist chunks');
-				}
-			}
 
 			g.colorForRow = function(row, idx)
 			{
@@ -472,11 +481,12 @@ table: function(){
 			D.qr('?act=filelist', {DIR: address}, g.onDataLoaded);
 			setInterval(function() {
 				if (_in_progress) return;
-				var pending = [];
+				var pending = [], old_dir = D.get_dir();
 				for(var k in _pending_files) pending.push(k);
 				if (pending.length) {
 					_in_progress = true;
 					D.qr('?act=files-info', {files: pending}, function(res) {
+                        if (D.get_dir() != old_dir) return;
 						_in_progress = false;
 
 						for (var k in res.info) {
@@ -495,33 +505,25 @@ table: function(){
 			
 		}else
 		{
-			var filt = document.getElementById('fsearch');
-			if(!filt) filt = '';
-			else filt = filt.value;
-			// T.GRID.dataSource.data.filter = filt == L._search_str_default ? null : filt;
-			
-			_new_directory = true;
-			_filelist_shown = false;
-			
-			if(!nohistory)
-			{
-				_filelist_pos = 0;
-				
-				_selected = {};
-				_selected_len = 0;
-				//_last_selected = null;
-				
-				_last_clicked_idx = -1;
-				_last_clicked_time = null;
-			}
-			
-			T.filelist = [];
-			_pending_files = {};
-			_fileinfo = {};
-			_in_progress = false;
-			D.abort();
-			D.qr('?act=filelist', {DIR: address}, T.GRID.onDataLoaded);
-			T.GRID.redraw(_filelist_pos);
+			D.qr('?act=filelist', {DIR: address}, function(req) {
+                if (!req.error) {
+                    _filelist_shown = false;
+
+                    if(!reload)
+                    {
+                        _filelist_pos = 0;
+
+                        _selected = {};
+                        _selected_len = 0;
+
+                        _last_clicked_idx = -1;
+                        _last_clicked_time = null;
+                    }
+                }
+
+                T.GRID.onDataLoaded(req, reload);
+                T.GRID.redraw(_filelist_pos);
+            });
 			
 		}
 	}
@@ -749,19 +751,21 @@ var EngineClass = function(){
 		
 		var del;
 		
-		R.remove_selection();
-		
 		(del = function(result)
 		{
 			D.qr('index.php?act=delete', {'items':items}, function(res,err)
 			{
 				if(res && res.end)
 				{
-					if(!res.success) alert('Delete failed');
+					if(!res.success) {
+                        alert('Delete failed');
+                    } else {
+                        R.remove_selection();
+                    }
 					T.F5();
 				}else if(res && !res.end)
 				{
-					/*setTimeout(function(){*/del(res);/*}, 100);*/
+					del(res);
 				}
 			},true, 'deleting ' + show_state(result) + '...');
 		})();
@@ -817,46 +821,6 @@ var EngineClass = function(){
 	T.ri = (T.rename_item = function()
 	{
 		var i = R.gsi()[0];
-		//if(i['type']!=0 && i['type']!=1) return; // you can only rename files and folders
-		/*var n = prompt('Enter new name: ',i['name']);
-		if(!n) return;
-		*/
-		
-		//var el = document.getElementById('it'+i['id']);
-		//var nm = el.firstChild.nextSibling;
-		
-		/*
-		I.dbg('name: ' + el.nodeValue);
-		
-		*/
-		
-		//el.removeChild(nm);
-		
-		//var inp = document.createElement('input');
-		
-		/*var buf = '';
-		
-		for(var k in inp)
-		{
-			buf += k + '<br>';
-		}
-		
-		I.dbg(buf);
-		*/
-		
-		//var s = function(e){sync(inp,i,e);};
-		
-		//var p = {type: 'text', value: i['name'], className: 'norm rename_inp', onkeydown: s, onblur: function(){sync(inp,i,null,true);} };
-		
-		//for(var k in p) inp[k] = p[k];
-		
-		//el.appendChild(inp);
-		
-		//s();
-		//inp.select();
-		
-		//R.un_cl();
-		
 		var newname = prompt('Enter new name:', T.basename(i));
 		
 		if(!newname) return;
@@ -1252,7 +1216,7 @@ var LeftMenuClass = function()
 	// params = { id1: 'what to draw1', id2: 'what to draw2', ... }
 	// 'what to drawN' = 'common' || 'additional' || 'operations' || 'long text'
 	
-	T.draw = function(params)
+	T.draw = function(orig_params)
 	{
 		var i=0;
 		var tmp='',header='',body='',up='',visible='';
@@ -1260,7 +1224,10 @@ var LeftMenuClass = function()
 		
 		
 		tmp += '<div class="left_menu_div">';
-		
+
+        var params = {first: {name: 'fsearch'}};
+        for (var k in orig_params) params[k] = orig_params[k];
+
 		//alert('called');
 		
 		for(var k in params)
@@ -1293,11 +1260,10 @@ var LeftMenuClass = function()
 				//body+='<form enctype="multipart/form-data" style="display:none; margin: 0px; padding: 0px;" id="upload_form"><div id="uploads_container"></div><div align="right" style="padding-bottom: 3px;"><a href="javascript:I._append_upload();" style="text-decoration: underline;">add more files...</a></div><button type="button" style="font-size: 10px;" onclick="E.upload_files();return false;"><b>upload'+(upload_max_filesize?' ('+upload_max_filesize+' max)':'')+'</b></button></form>';
 				break;
 			case 'fsearch':
-				continue;
 				header='Filename filter';
 				T._search_str_default = 'Enter part of filename...';
 				if(!T._search_str) T._search_str = T._search_str_default; // the search string
-				body='<input type=text name="fsearch" id="fsearch" class="fsearch_g" onkeyup="/*setTimeout is to prevent IE crash =) */if(window.search_timeout) clearTimeout(window.search_timeout); window.search_timeout = setTimeout(function(){ L._search_str=document.getElementById(\'fsearch\').value;D.apply_filter();}, event.keyCode == 13 ? 0 : 500);" onfocus="if(this.value==\''+T._search_str_default+'\') this.value=\'\';this.className=\'fsearch\'" onblur="this.className=\'fsearch_g\';if(this.value==\'\') this.value=\''+T._search_str_default+'\';" value="'+T._search_str+'">';
+				body='<input type=text name="fsearch" id="fsearch" class="fsearch_g" onkeyup="/*setTimeout is to prevent IE crash =) */if(window.search_timeout) clearTimeout(window.search_timeout); window.search_timeout = setTimeout(function(){ L._search_str=document.getElementById(\'fsearch\').value;D.apply_filter();}, 0);" onfocus="if(this.value==\''+T._search_str_default+'\') this.value=\'\';this.className=\'fsearch\'" onblur="this.className=\'fsearch_g\';if(this.value==\'\') this.value=\''+T._search_str_default+'\';" value="'+T._search_str+'">';
 				break;
 			case 'operations': // all items are taken from the main frame
 				var s /* selected */ = R.gsi();
@@ -2677,7 +2643,12 @@ var DolphinClass = function(){
 		
 		R.df(where, nohistory);
 	}
-	
+
+    T.get_dir = function()
+    {
+        return _addr_el.value;
+    }
+
 	var last_filter_value = '';
 	
 	T.apply_filter = function()
@@ -2686,8 +2657,7 @@ var DolphinClass = function(){
 		
 		if(last_filter_value != _fsearch_el.value)
 		{
-			R.df(_addr_el.value);
-			
+			R.filter(_fsearch_el.value);
 			last_filter_value = _fsearch_el.value;
 		}
 		
@@ -2696,7 +2666,7 @@ var DolphinClass = function(){
 	
 	T.onFileListLoaded = function(res, err)
 	{
-		if(res && res['res'] && !res['error'])
+		if(res && !res['error'])
 		{
 			var nohistory = ( _addr_el.value == res['DIR'] );
 			
@@ -2704,7 +2674,7 @@ var DolphinClass = function(){
 			
 			//_res = res['res']; // create a var with all the types of objects
 			_up = res['up'];
-			_menu = {0: 'fsearch', 1: 'common',2: res['info'] };
+			_menu = {1: 'common',2: res['info'] };
 			
 			//console.log(res);
 			

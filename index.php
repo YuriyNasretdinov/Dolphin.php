@@ -1,4 +1,4 @@
-<?
+<?php
 function dolphin_handler($str)
 {
 	$str = ob_gzhandler($str,5);
@@ -6,7 +6,7 @@ function dolphin_handler($str)
 	return $str;
 }
 
-ob_start('dolphin_handler');
+ob_start('ob_gzhandler');
 
 require('system/core.php');
 

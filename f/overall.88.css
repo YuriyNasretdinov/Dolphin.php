@@ -574,4 +574,12 @@ tr.menu td
     background-color: #6D6D6F;
 }
 
+div.file-icon {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
 /* td { border: 1px red solid; } */

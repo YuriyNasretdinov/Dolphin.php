@@ -191,7 +191,12 @@ var DolphinClass = function(){
 		
 		R.df(where, nohistory);
 	}
-	
+
+    T.get_dir = function()
+    {
+        return _addr_el.value;
+    }
+
 	var last_filter_value = '';
 	
 	T.apply_filter = function()
@@ -200,8 +205,7 @@ var DolphinClass = function(){
 		
 		if(last_filter_value != _fsearch_el.value)
 		{
-			R.df(_addr_el.value);
-			
+			R.filter(_fsearch_el.value);
 			last_filter_value = _fsearch_el.value;
 		}
 		
@@ -210,7 +214,7 @@ var DolphinClass = function(){
 	
 	T.onFileListLoaded = function(res, err)
 	{
-		if(res && res['res'] && !res['error'])
+		if(res && !res['error'])
 		{
 			var nohistory = ( _addr_el.value == res['DIR'] );
 			
@@ -218,7 +222,7 @@ var DolphinClass = function(){
 			
 			//_res = res['res']; // create a var with all the types of objects
 			_up = res['up'];
-			_menu = {0: 'fsearch', 1: 'common',2: res['info'] };
+			_menu = {1: 'common',2: res['info'] };
 			
 			//console.log(res);
 			

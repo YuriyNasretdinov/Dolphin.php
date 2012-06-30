@@ -1,8 +1,6 @@
 <?php
-function d_filelist_simple($dir)
+function d_filelist_simple($dh)
 {
-	$dh = opendir($dir);
-	if (!$dh) return d_error("Cannot open $dir");
 	// use as little memory as possible using strings
 	$files = '';
 	// assuming that first two entries are always "." and ".." or (in case of root dir) it is only "."
@@ -15,9 +13,7 @@ function d_filelist_simple($dir)
 		$files .= "$f/";
 	}
 	while (false !== ($f = readdir($dh))) $files .= "$f/";
-	closedir($dh);
 	return array('res' => $files, 'cnt' => substr_count($files, '/'));
-
 }
 
 function d_filelist_fast($dir)

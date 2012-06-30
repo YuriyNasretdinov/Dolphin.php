@@ -190,19 +190,21 @@ var EngineClass = function(){
 		
 		var del;
 		
-		R.remove_selection();
-		
 		(del = function(result)
 		{
 			D.qr('index.php?act=delete', {'items':items}, function(res,err)
 			{
 				if(res && res.end)
 				{
-					if(!res.success) alert('Delete failed');
+					if(!res.success) {
+                        alert('Delete failed');
+                    } else {
+                        R.remove_selection();
+                    }
 					T.F5();
 				}else if(res && !res.end)
 				{
-					/*setTimeout(function(){*/del(res);/*}, 100);*/
+					del(res);
 				}
 			},true, 'deleting ' + show_state(result) + '...');
 		})();
@@ -258,46 +260,6 @@ var EngineClass = function(){
 	T.ri = (T.rename_item = function()
 	{
 		var i = R.gsi()[0];
-		//if(i['type']!=tDIR && i['type']!=tFILE) return; // you can only rename files and folders
-		/*var n = prompt('Enter new name: ',i['name']);
-		if(!n) return;
-		*/
-		
-		//var el = document.getElementById('it'+i['id']);
-		//var nm = el.firstChild.nextSibling;
-		
-		/*
-		I.dbg('name: ' + el.nodeValue);
-		
-		*/
-		
-		//el.removeChild(nm);
-		
-		//var inp = document.createElement('input');
-		
-		/*var buf = '';
-		
-		for(var k in inp)
-		{
-			buf += k + '<br>';
-		}
-		
-		I.dbg(buf);
-		*/
-		
-		//var s = function(e){sync(inp,i,e);};
-		
-		//var p = {type: 'text', value: i['name'], className: 'norm rename_inp', onkeydown: s, onblur: function(){sync(inp,i,null,true);} };
-		
-		//for(var k in p) inp[k] = p[k];
-		
-		//el.appendChild(inp);
-		
-		//s();
-		//inp.select();
-		
-		//R.un_cl();
-		
 		var newname = prompt('Enter new name:', T.basename(i));
 		
 		if(!newname) return;

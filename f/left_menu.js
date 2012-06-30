@@ -10,7 +10,7 @@ var LeftMenuClass = function()
 	// params = { id1: 'what to draw1', id2: 'what to draw2', ... }
 	// 'what to drawN' = 'common' || 'additional' || 'operations' || 'long text'
 	
-	T.draw = function(params)
+	T.draw = function(orig_params)
 	{
 		var i=0;
 		var tmp='',header='',body='',up='',visible='';
@@ -18,7 +18,10 @@ var LeftMenuClass = function()
 		
 		
 		tmp += '<div class="left_menu_div">';
-		
+
+        var params = {first: {name: 'fsearch'}};
+        for (var k in orig_params) params[k] = orig_params[k];
+
 		//alert('called');
 		
 		for(var k in params)
@@ -51,11 +54,10 @@ var LeftMenuClass = function()
 				//body+='<form enctype="multipart/form-data" style="display:none; margin: 0px; padding: 0px;" id="upload_form"><div id="uploads_container"></div><div align="right" style="padding-bottom: 3px;"><a href="javascript:I._append_upload();" style="text-decoration: underline;">add more files...</a></div><button type="button" style="font-size: 10px;" onclick="E.upload_files();return false;"><b>upload'+(upload_max_filesize?' ('+upload_max_filesize+' max)':'')+'</b></button></form>';
 				break;
 			case 'fsearch':
-				continue;
 				header='Filename filter';
 				T._search_str_default = 'Enter part of filename...';
 				if(!T._search_str) T._search_str = T._search_str_default; // the search string
-				body='<input type=text name="fsearch" id="fsearch" class="fsearch_g" onkeyup="/*setTimeout is to prevent IE crash =) */if(window.search_timeout) clearTimeout(window.search_timeout); window.search_timeout = setTimeout(function(){ L._search_str=document.getElementById(\'fsearch\').value;D.apply_filter();}, event.keyCode == 13 ? 0 : 500);" onfocus="if(this.value==\''+T._search_str_default+'\') this.value=\'\';this.className=\'fsearch\'" onblur="this.className=\'fsearch_g\';if(this.value==\'\') this.value=\''+T._search_str_default+'\';" value="'+T._search_str+'">';
+				body='<input type=text name="fsearch" id="fsearch" class="fsearch_g" onkeyup="/*setTimeout is to prevent IE crash =) */if(window.search_timeout) clearTimeout(window.search_timeout); window.search_timeout = setTimeout(function(){ L._search_str=document.getElementById(\'fsearch\').value;D.apply_filter();}, 0);" onfocus="if(this.value==\''+T._search_str_default+'\') this.value=\'\';this.className=\'fsearch\'" onblur="this.className=\'fsearch_g\';if(this.value==\'\') this.value=\''+T._search_str_default+'\';" value="'+T._search_str+'">';
 				break;
 			case 'operations': // all items are taken from the main frame
 				var s /* selected */ = R.gsi();

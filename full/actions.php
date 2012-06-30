@@ -21,29 +21,21 @@ if(!empty($_REQUEST['items']))
 switch(@$_REQUEST['act'])
 {
 case 'filelist':
-	$mypage = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
-	
-	$_REQUEST['params'] = array(
-		'perpage' => 1,
-		'pagemin' => 1,
-		'pagemax' => 1,
-		'filt'    => isset($_REQUEST['filter']) ? $_REQUEST['filter'] : false,
-	);
-	
-	$res=read_directory(true,$_REQUEST['params']);
+	$res = read_directory();
 	$first_files = explode("/", substr($res['res'], 0, 2000));
 	if (count($first_files)) array_pop($first_files);
 	
 	$_RESULT = array(
-		'res'        => $res['res'],
-		'count'      => $res['cnt'],
+		'res'        => $res ? $res['res'] : false,
+		'count'      => $res ? $res['cnt'] : false,
 		'fileinfo'   => get_files_info($first_files),
 		'DIR'        => $_SESSION['DIR'],
 		'stats'      => stats(false),
 		'info'       => get_info($_SESSION['DIR']),
 		'type'       => (!empty($req['type']) && empty($drives) ? $req['type'] : (empty($drives) ? tDIR : tMYCOMP)),
-		'up'         => $up,
+		'up'         => $res ? $res['up'] : false,
 		'reason'     => reason(),
+        'error'      => !$res,
 	);
 	break;
 case 'files-info':
