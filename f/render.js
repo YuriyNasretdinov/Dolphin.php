@@ -141,23 +141,15 @@ table: function(){
 		{
 			function add_to_selection(i)
 			{
-				res = T.GRID.getRow(i);
-				if(!res) return;
-				if(_selected[res['name']]) return;
+				var name = T.filelist[i];
+				if(_selected[name]) return;
 				
-				_selected[res['name']] = true;
+				_selected[name] = true;
 				_selected_len++;
 			}
 			
-			var i, res;
-			
-			var num = Math.abs( idx - _last_clicked_idx ) + 1;
-			if(num > 500)
-			{
-				alert('Selection of more than 500 elements at once is not supported. You tried to select '+num+' items.');
-				return;
-			}
-			
+			var i;
+
 			if( idx > _last_clicked_idx )
 			{
 				for(i = _last_clicked_idx; i <= idx; i++)

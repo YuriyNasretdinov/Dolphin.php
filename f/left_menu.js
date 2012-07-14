@@ -13,17 +13,13 @@ var LeftMenuClass = function()
 	T.draw = function(orig_params)
 	{
 		var i=0;
-		var tmp='',header='',body='',up='',visible='';
+		var tmp='',header='',body='';
 		names = {};
-		
-		
 		tmp += '<div class="left_menu_div">';
 
         var params = {first: {name: 'fsearch'}};
         for (var k in orig_params) params[k] = orig_params[k];
 
-		//alert('called');
-		
 		for(var k in params)
 		{
 			i++;
@@ -48,10 +44,6 @@ var LeftMenuClass = function()
 				}
 				body+=add_link("javascript:E.mkfile();",'Create a file','mkdir','Create a file');
 				body+=add_link("javascript:E.mkdir();",'Create a folder','mkdir','Create a directory');
-				//body+=add_link("javascript:E.open_terminal();",'Open terminal window to execute shell commands','rename','Open terminal');
-				/* TODO: make a better uploads */
-				//body+=add_link("javascript:I.show_upload();",'Upload files','upload','Upload files');
-				//body+='<form enctype="multipart/form-data" style="display:none; margin: 0px; padding: 0px;" id="upload_form"><div id="uploads_container"></div><div align="right" style="padding-bottom: 3px;"><a href="javascript:I._append_upload();" style="text-decoration: underline;">add more files...</a></div><button type="button" style="font-size: 10px;" onclick="E.upload_files();return false;"><b>upload'+(upload_max_filesize?' ('+upload_max_filesize+' max)':'')+'</b></button></form>';
 				break;
 			case 'fsearch':
 				header='Filename filter';
@@ -61,9 +53,6 @@ var LeftMenuClass = function()
 				break;
 			case 'operations': // all items are taken from the main frame
 				var s /* selected */ = R.gsi();
-				
-				
-				
 				header='Common operations';
 				
 				if(s.length == 1)
@@ -110,29 +99,12 @@ var LeftMenuClass = function()
 					}
 				}else
 				{
-					body += add_link("javascript:E.cut_items();",'Move items to another place','cut','Cut items');
+					body = add_link("javascript:E.cut_items();",'Move items to another place','cut','Cut items');
 					
 					body += add_link("javascript:E.copy_items();",'Make copy of items','copy','Copy items');
-					
-					/*body += add_link("javascript:E.download_files();",'Download the selected items to your computer','upload','Download file');*/
-					
 					body += add_link("javascript:E.delete_items();",'Remove the items from computer','delete','Delete items');
-					/*if(E.get_extension(s['fullpath']) == 'zip')
-					{
-						body += add_link("javascript:E.unzip_item(&quot;extract_here&quot;);",'Extract contents here','zip','Extract here');
-						var lon = E.basename(s['fullpath']);
-						var lon = lon.substr(0, lon.length-4);
-						shor = lon.length>12 ? lon.substr(0,9) + '...' : lon;
-						
-						body += add_link("javascript:E.unzip_item(&quot;extract&quot;);",'Extract to &quot;'+lon+'/&quot;','zip','Extract to &quot;' + shor + '/&quot;');
-					}else
-					{
-						
-					}
-					*/
 					
 					body += add_link("javascript:E.zip_items();",'Add items to zip','zip','Add to zip');
-					
 					body += add_link("javascript:E.show_properties();",'Show properties of items','admin','Show Properties');
 				}
 				break;
