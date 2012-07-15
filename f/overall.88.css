@@ -42,7 +42,10 @@ div, span
 
 .gggr_head
 {
-	
+	position: relative;
+    top: 0;
+    left: 0;
+    z-index: 20;
 }
 
 .gggr_head_table
@@ -74,13 +77,6 @@ div, span
 	cursor: default;
 }
 
-.gggr_body_table
-{
-	
-	border-top: 1px #aeaeae solid;
-	border-left: 1px transparent solid;
-}
-
 .gggr_th_header
 {
 	border-bottom: 0px !important;
@@ -89,22 +85,7 @@ div, span
 	font-weight: bold;
 	font-size: 15px !important;
 	color: #595959;
-	
-}
 
-.gggr_cell
-{
-	border-bottom: 1px transparent solid;
-	border-right: 0px transparent solid;
-
-	border-top: 0px !important;
-	border-left: 0px !important;
-	/*border-width: 1px !important;*/
-
-	padding: 3px;
-
-	font-family: Arial, serif;
-	font-size: 14px;
 }
 
 .gggr_header
@@ -114,45 +95,20 @@ div, span
 	text-align: center;
 }
 
-.gggr_highlight
-{
-	background: #F8FF16;
+.grid_row {
+    overflow-y: hidden;
 }
 
-.gggr_filter
-{
-	position: absolute;
-	background: white;
-	width: 200px;
-	border: 1px black solid;
-
-	z-index: 888;
-
-	-moz-box-align: center;
-	-moz-box-shadow: 5px 5px 5px gray;
-	-webkit-box-shadow: 5px 5px 5px gray;
-
-}
-
-.gggr_filter_content
-{
-	text-align: center;
-}
-
-.gggr_loading
-{
-	margin-top: 20px;
-	margin-bottom: 20px;
-
-	background: white;
-	color:      black;
-
-	border: 1px red solid;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-
-	display: inline-block;
+.grid_row_cell {
+    display: inline-block;
+    overflow: hidden;
+    padding-left: 3px;
+    padding-right: 3px;
+    vertical-align: middle;
+    font-family: Arial, serif;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 0px;
 }
 
 a
@@ -577,7 +533,7 @@ tr.menu td
 div.file-icon {
     width: 16px;
     height: 16px;
-    margin: 0;
+    margin-top: 7px;
     padding: 0;
     display: inline-block;
 }

@@ -43,15 +43,15 @@ function show_size($f,$format=true,$size=false)
 	if($format || $size!==false)
 	{
 		if($size===false) $size=show_size($f,false);
-		if(!empty($GLOBALS['TIMED_OUT'])) $p = '&gt;';
+		if(!empty($GLOBALS['TIMED_OUT'])) $p = '>';
 		else $p = '';
-		if($size == 1) return $p.'1&nbsp;byte';
-		else if($size<=1024) return $p.$size.'&nbsp;bytes';
-		else if($size<=1048576) return $p.round($size/1024,2).'&nbsp;Kb';
-		else if($size<=1073741824) return $p.round($size/1048576,2).'&nbsp;Mb';
-		else if($size<=1099511627776) return $p.round($size/1073741824,2).'&nbsp;Gb';
-		else if($size<=1125899906842624) return $p.round($size/1099511627776,2).'&nbsp;Tb';
-		else return $p.round($size/1125899906842624,2).'&nbsp;Pb';
+		if($size == 1) return $p.'1 byte';
+		else if($size<=1024) return $p.$size.' bytes';
+		else if($size<=1048576) return $p.round($size/1024,2).' Kb';
+		else if($size<=1073741824) return $p.round($size/1048576,2).' Mb';
+		else if($size<=1099511627776) return $p.round($size/1073741824,2).' Gb';
+		else if($size<=1125899906842624) return $p.round($size/1099511627776,2).' Tb';
+		else return $p.round($size/1125899906842624,2).' Pb';
 	}else
 	{
 		if(d_is_file($f))
@@ -1355,9 +1355,8 @@ function compress_js()
 	$old = getcwd();
 	// FULL VERSION
 	
-	$f[]='../system/libs/jquery.js';
-	
 	// Dolphin.php Javascript (the sequence is important!)
+	$f[]='grid.js';
 	$f[]='render.js';
 	$f[]='engine.js';
 	$f[]='left_menu.js';
@@ -1367,9 +1366,6 @@ function compress_js()
 	
 	// JsHttpRequest AJAX Library (Dmitry Koterov)
 	$f[]='../system/libs/JsHttpRequest.js';
-	
-	// JsGigaGrid
-	$f[]='../system/libs/gggr.js';
 	
 	chdir(ROOT.'/f/');
 	
@@ -2224,7 +2220,7 @@ function human_date($timestamp)
 	
 	if($difference > 6*30*24*3600 /* 6 months */)
 	{
-		return '<nobr>'.date('F Y', $timestamp).'</nobr>';
+		return date('F Y', $timestamp);
 	}
 	
 	//ob_start();
@@ -2250,6 +2246,6 @@ function human_date($timestamp)
 	if ($difference != 1)
 		$periods[$j].= "s";
 	
-	return "<nobr>$difference $periods[$j] $ending</nobr>";
+	return "$difference $periods[$j] $ending";
 }
 ?>

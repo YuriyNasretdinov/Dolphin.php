@@ -77,7 +77,11 @@ table: function(){
         background = background || "f/iconz/16-f.png";
 		var e = E.ge(path).toLowerCase();
 
-		return '<div class="file-icon" style="background: url(\'' + background + '\'); background-position: 0px '+(_ext[e] ? -_ext[e]*16 : 0)+'px"></div>';
+        var el = document.createElement('div');
+        el.className = 'file-icon';
+        el.style.background = "url('" + background + "')";
+        el.style.backgroundPosition = "0px " + (_ext[e] ? -_ext[e]*16 : 0) + "px";
+		return el;
 	};
 	
 	
@@ -141,7 +145,7 @@ table: function(){
 		{
 			function add_to_selection(i)
 			{
-				res = T.GRID.getRow(i);
+				res = T.GRID_SETTINGS.fetch(i);
 				if(!res) return;
 				if(_selected[res['name']]) return;
 				
@@ -220,40 +224,40 @@ table: function(){
         _last_filter = '' + str;
 
         if(!skip_redraw) T.GRID.redraw();
-    }
+    };
 
 	T.df = T.draw_files = function(address, reload)
 	{	
 		if(!grid_setup)
 		{
-			T.GRID = new GGGR();
+			T.GRID = new Grid();
 			var g = T.GRID;
+            var settings = {};
 			
-			g.container = document.getElementById('content');
-			g.dataSource = {
-				type: 'local',
-				fetch: function(i) {
-					var name = T.filtered_filelist[i];
-					var info = _fileinfo[name];
-					if (!info) {
-						_pending_files[name] = true;
-						info = {};
-					}
+			settings.container = document.getElementById('content');
+            settings.fetch = function(i) {
+                var name = T.filtered_filelist[i];
+                var info = _fileinfo[name];
+                if (!info) {
+                    _pending_files[name] = true;
+                    info = {};
+                }
 
-					return {
-						name: name,
-						nameNew: htmlspecialchars(name),
-						modified: info.modified || '',
-						size: info.size || '',
-						icon: T.file_icon(name, info.type == 'dir' ? 'f/iconz/16-folder.png' : ''),
-						type: info.type
-					};
-				},
-				count: function() {
-					return Math.max(0, Math.min(500000, T.filtered_filelist.length - 1)); // last element is always empty
-				}
-			}
-			g.onDataLoaded = function(req, need_filter)
+                return {
+                    name: name,
+                    modified: info.modified || '',
+                    size: info.size || '',
+                    icon: function() {
+                        return T.file_icon(name, info.type == 'dir' ? 'f/iconz/16-folder.png' : '');
+                    },
+                    type: info.type
+                };
+            };
+            settings.count = function() {
+                // last element is always empty
+                return Math.max(0, T.filtered_filelist.length - 1);
+            };
+            T.onDataLoaded = function(req, need_filter)
 			{
                 if (!req['error']) {
                     _in_progress = false;
@@ -277,9 +281,9 @@ table: function(){
 				
 				g.redraw();
 			};
-			g.updateInterval = 25;
+            settings.updateInterval = 25;
 
-			g.colorForRow = function(row, idx)
+            settings.colorForRow = function(row, idx)
 			{
 				if(_selected[row['name']])
 				{
@@ -287,41 +291,43 @@ table: function(){
 				}
 				
 				return null;
-			}
-			
-			g.onRowClick = handle_row_select;
-			
-			g.onRowChange = function(pos)
+			};
+
+            settings.onRowClick = handle_row_select;
+
+            settings.onRowChange = function(pos)
 			{
 				_filelist_pos = pos;
-			}
-			
-			g.fields = {
-				icon: '</a>&nbsp;<a>',
-				nameNew: '</a>Name<a>',
+			};
+
+            settings.fields = {
+				icon: '&nbsp;',
+				name: 'Name',
 				//owner: '</a>Owner<a>',
 				//group: '</a>Group<a>',
 				//perm: '</a>Permissions<a>',
-				modified: '</a>Modified<a>',
-				size: '</a>Size<a>'
+				modified: 'Modified',
+				size: 'Size'
 			};
 			
-			g.widths = {
+			settings.widths = {
 				icon: 21,
-				nameNew: g.container.offsetWidth - (21 + /*80 + 80 + 80 + */130 + 80 /* field widths */ + 4 /*field count*/ 
+				name: settings.container.offsetWidth - (21 + /*80 + 80 + 80 + */130 + 80 /* field widths */ + 4 /*field count*/
 					+ 17 /*scroll width + border*/),
 				//owner: 80,
 				//group: 80,
 				//perm: 80,
-				modifDate: 130,
+				modified: 130,
 				size: 80
 			};
 
-			g.zebraColor = 'rgba(50, 50, 50, 0.03)';
+			settings.zebraColor = 'rgba(50, 50, 50, 0.03)';
 			
-			g.setup();
+			g.setup(settings);
+
+            T.GRID_SETTINGS = settings;
 			
-			D.qr('?act=filelist', {DIR: address}, g.onDataLoaded);
+			D.qr('?act=filelist', {DIR: address}, T.onDataLoaded);
 			setInterval(function() {
 				if (_in_progress) return;
 				var pending = [], old_dir = D.get_dir();
@@ -364,7 +370,7 @@ table: function(){
                     }
                 }
 
-                T.GRID.onDataLoaded(req, reload);
+                T.onDataLoaded(req, reload);
                 T.GRID.redraw(_filelist_pos);
             });
 			

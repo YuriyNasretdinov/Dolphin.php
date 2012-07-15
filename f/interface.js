@@ -262,7 +262,7 @@ var InterfaceClass = function(){
 		/* T.dbg(T.get_height()); */
 		
 		/* heights */
-		var fh = $('#footer').height(), hh = 69, mh = 0;
+		var fh = document.getElementById('footer').offsetHeight, hh = 69, mh = 0;
 
 		/* widths */		
 		var lw = 250;
@@ -311,8 +311,9 @@ var InterfaceClass = function(){
 			D.go2('.');
 		}else
 		{
-			R.GRID.widths.nameNew -= (prev_content_w - parseInt(cstyle.width));
-			R.GRID.resize( parseInt(cstyle.width), parseInt(cstyle.height) );
+			R.GRID_SETTINGS.widths.name -= (prev_content_w - parseInt(cstyle.width));
+            R.GRID.setup(R.GRID_SETTINGS);
+            R.GRID.redraw();
 		}
 
 		prev_content_w = parseInt(cstyle.width);
