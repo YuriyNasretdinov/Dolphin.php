@@ -1066,11 +1066,12 @@ function d_filesize($f)
 	return false;
 }
 
-function get_files_info($files) {
+function get_files_info($files, $dir = null) {
     if (!count($files)) return array();
 
+    if (!isset($dir)) $dir = $_SESSION['DIR'];
     $old_dir = getcwd();
-    chdir($_SESSION['DIR']);
+    if (!chdir($dir)) return d_error('Cannot change directory');
     $result = array();
     $sizes = array();
     // a more reliable way of computing size
@@ -2114,6 +2115,8 @@ function cpcont($name, &$data)
 		if(file_exists($newname))
 		{
 			setwritable($newname, true);
+            $info = get_files_info(array(basename($newname)), $dn);
+
 			if(fseek($fps, sprintf('%u',filesize($newname))) < 0) return false;
 		}else
 		{
@@ -2129,7 +2132,7 @@ function cpcont($name, &$data)
 		$__perms[$newname] = get_rights($name);
 	}
 	
-	$_SESSION['TOTAL_BYTES'] += fputs($fpd, fread($fps, 65536));
+	$_SESSION['TOTAL_BYTES'] += fwrite($fpd, fread($fps, 65536));
 	
 	if(feof($fps)) return true;
 	
