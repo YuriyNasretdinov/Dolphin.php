@@ -4,10 +4,10 @@ switch(@$_REQUEST['act'])
 {
 	case 'js':
 		include('../system/core.php');
-		if(IS_DEVELOPER) compress_js();
+		$js_contents = compress_js();
 		
-		header('content-type: text/javascript');
-		readfile(ROOT.'/f/all.'.FVER.'.js');
+		header('content-type: application/javascript');
+		echo $js_contents;
 		break;
 	case 'css':
 		header('location: overall.'.FVER.'.css');

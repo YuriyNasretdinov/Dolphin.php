@@ -1347,11 +1347,11 @@ function update_dolphin($print_err_func)
 	return 'Update did not complete successfully. Please upload the new version <b>via FTP</b>. Here are the contents of your previous <b>config.php</b>:<pre>'.htmlspecialchars(d_file_get_contents($cfg_old)).'</pre>';
 }
 
+/* returns the contents of compressed JS */
 function compress_js()
 {
 	// a hack for MAMP
 	putenv("DYLD_LIBRARY_PATH=");
-	
 	
 	$old = getcwd();
 	// FULL VERSION
@@ -1401,22 +1401,7 @@ function compress_js()
 		
 		$contents .= $cont."\n\n";
 	}
-	
-	file_put_contents("all.src.js", $contents);
-	
-	//exec('cat '.implode(' ', $f).' >all.src.js');
-	
-	$cont = d_file_get_contents(ROOT.'/f/all.src.js');
-	
-	
-	
-	
-	
-	d_file_put_contents(ROOT.'/f/all.src.js', $cont);
-	
-	exec('cat all.src.js > all.'.FVER.'.js');
-	
-	
+
 	// CSS versioning
 	
 	@exec('mv overall.'.(BUILD-1).'.css overall.'.FVER.'.css');
@@ -1429,8 +1414,9 @@ function compress_js()
 	@exec('mv light.'.(BUILD-1).'.css light.'.FVER.'.css');
 	@exec('mv light.'.(BUILD-1).'.js light.'.FVER.'.js');
 	
-	
 	chdir($old);
+
+    return $contents;
 }
 
 /* returns smth like "~/music/" instead of "/home/yourock/music/" */
