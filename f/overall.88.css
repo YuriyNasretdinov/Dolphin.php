@@ -50,8 +50,7 @@ div, span
 
 .gggr_head_table
 {
-	border-top: 1px transparent solid;
-	border-left: 1px transparent solid;
+    border-bottom: 1px #aeaeae solid;
 
 	-moz-border-radius: 15px 15px 0px 0px;
 	-webkit-border-radius: 15px 15px 0px 0px;
@@ -97,6 +96,7 @@ div, span
 
 .grid_row {
     overflow-y: hidden;
+    border-bottom: 1px #FDFDFD solid;
 }
 
 .grid_row_cell {
@@ -109,6 +109,23 @@ div, span
     font-size: 14px;
     white-space: nowrap;
     margin: 0px;
+}
+
+.grid_scrollbox {
+    width: 20px;
+    position: absolute;
+    right: 0;
+    top: 30px;
+}
+
+.grid_scroller {
+    margin-left: 5px;
+    width: 10px;
+    background: #999;
+}
+
+.grid_scroller_selected {
+    background: #888;
 }
 
 a

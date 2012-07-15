@@ -4,7 +4,7 @@ var Grid = function()
     var _fetchFunc, _countFunc, _rowClickFunc, _rowChangeFunc, _colorForRowFunc;
     var _widths, _fields, _fieldsNum, _container, _id, _visibleRows, _zebraColor;
 
-    var _previousPos, _currentPos, _currentOffset, _shown;
+    var _previousPos, _currentPos, _currentOffset, _shown, _scrollboxHeight, _scrollerHeight;
     var _rowHeight = 30;
 
     T.setup = function(settings)
@@ -23,7 +23,7 @@ var Grid = function()
         _zebraColor = settings.zebraColor;
         if (!Grid.id) Grid.id = 1;
         _id = 'dgrid_' + (Grid.id++);
-        _visibleRows = Math.ceil(_container.offsetHeight / _rowHeight);
+        _visibleRows = Math.ceil(_container.offsetHeight / _rowHeight) - 1;
         _previousPos = 0;
         _currentPos = 0;
         _currentOffset = 0;
@@ -50,7 +50,7 @@ var Grid = function()
     {
         var code = [], i = 0;
 
-        code.push('<div class="gggr_head"><table cellspacing="0" cellpadding="0" class="gggr_head_table" id="'+_id+'_head"><thead><tr height="' + _rowHeight + '">');
+        code.push('<div class="gggr_head"><table cellspacing="0" cellpadding="0" class="gggr_head_table" id="'+_id+'_head"><thead><tr height="' + (_rowHeight - 1) + '">');
 
         for(var k in _fields)
         {
@@ -65,6 +65,19 @@ var Grid = function()
 
         code.push('</tr></thead></table></div><div id="'+_id+'_body" class="gggr_body"></div>');
 
+        return code.join('');
+    }
+
+    function _getScrollerHTML()
+    {
+        _scrollboxHeight = _container.offsetHeight - _rowHeight - 10;
+        _scrollerHeight = Math.ceil(_scrollboxHeight * _visibleRows / _countFunc());
+        _scrollerHeight = Math.max(20, _scrollerHeight);
+        if (_scrollerHeight > _scrollboxHeight) return '';
+        var code = [];
+        code.push('<div class="grid_scrollbox" style="height: ' + _scrollboxHeight + 'px;">');
+        code.push('<div class="grid_scroller" id="' + _id + '_scroller" style="height: ' + _scrollerHeight + 'px;"></div>');
+        code.push('</div>');
         return code.join('');
     }
 
@@ -103,8 +116,8 @@ var Grid = function()
                 cell = document.createElement('div');
                 cell.className = 'grid_row_cell';
                 cell.style.width = (_colWidth(k) - 5) + 'px'; // padding is 3+3 px
-                cell.style.height = _rowHeight + 'px';
-                cell.style.lineHeight = _rowHeight + 'px';
+                cell.style.height = (_rowHeight - 1) + 'px';
+                cell.style.lineHeight = (_rowHeight - 1) + 'px';
                 data = rowData[k];
                 // if data() is a function, then it must supply the corresponding DOM element
                 if (typeof(data) != "function") {
@@ -157,13 +170,74 @@ var Grid = function()
         });
     }
 
+    function _getMaxScrollerOffset()
+    {
+        return (_scrollboxHeight - _scrollerHeight);
+    }
+
+    function _moveScroller()
+    {
+        var el = document.getElementById(_id + '_scroller');
+        if (!el) return;
+        el.style.marginTop = Math.floor(_getMaxScrollerOffset() * (_currentOffset / _getMaxOffset())) + 'px';
+    }
+
+    function _setupScroller()
+    {
+        _moveScroller();
+        var el = document.getElementById(_id + '_scroller');
+        if (!el) return;
+
+        var beginY, beginOffset;
+        var move_callback, mouseup_callback;
+
+        move_callback = function(e) {
+            var delta = e.clientY - beginY;
+            var relativeOffset = delta / _getMaxScrollerOffset();
+            _setOffset(Math.floor(beginOffset + relativeOffset * _getMaxOffset()));
+            _try(_scrollBody);
+        };
+
+        mouseup_callback = function(e) {
+            window.removeEventListener('mousemove', move_callback);
+            window.removeEventListener('mouseup', mouseup_callback);
+        };
+
+        el.addEventListener('mouseover', function(e) {
+            el.className = 'grid_scroller grid_scroller_selected';
+        });
+
+        el.addEventListener('mouseout', function(e) {
+            el.className = 'grid_scroller';
+        });
+
+        el.addEventListener('mousedown', function(e) {
+            e.preventDefault && e.preventDefault();
+            e.stopPropagation && e.stopPropagation();
+
+            beginY = e.clientY;
+            beginOffset = _currentOffset;
+
+            window.addEventListener('mousemove', move_callback);
+            window.addEventListener('mouseup', mouseup_callback);
+        });
+
+
+    }
+
+    function _getMaxOffset()
+    {
+        return (_countFunc() + 2) * _rowHeight - _container.offsetHeight;
+    }
+
     function _setOffset(value)
     {
-        _currentOffset = Math.max(0, Math.min((_countFunc() + 1.5) * _rowHeight - _container.offsetHeight, value));
+        _currentOffset = Math.max(0, Math.min(_getMaxOffset(), value));
         _currentPos = Math.floor(_currentOffset / _rowHeight);
         if (_currentPos != _previousPos && _rowChangeFunc) {
             _try(function() { _rowChangeFunc(_currentPos); });
         }
+        _moveScroller();
     }
 
     T.scroll = function(offset)
@@ -179,8 +253,9 @@ var Grid = function()
             // ensure current offset is correct
             _setOffset(pos !== undefined ? pos * _rowHeight : _currentOffset);
             _shown = {}; // { row_number: true }
-            _container.innerHTML = _getHeaderHTML();
+            _container.innerHTML = _getHeaderHTML() + _getScrollerHTML();
             _setupBodyScroll();
+            _setupScroller();
             _scrollBody();
         });
     };
