@@ -125,7 +125,7 @@ var Grid = function()
                 row.appendChild(cell);
             }
 
-            if (i <= _previousPos) {
+            if (firstChild && i <= _previousPos) {
                 body.insertBefore(row, firstChild);
             } else {
                 body.appendChild(row);
