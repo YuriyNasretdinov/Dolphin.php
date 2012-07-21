@@ -119,9 +119,9 @@ div, span
 }
 
 .grid_scroller {
-    margin-left: 5px;
-    width: 10px;
-    background: #999;
+    margin-left: 6px;
+    width: 8px;
+    background: #bbb;
 }
 
 .grid_scroller_selected {

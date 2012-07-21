@@ -338,7 +338,8 @@ table: function(){
 							delete _pending_files[name];
 							if (!_fileinfo[name]) _fileinfo[name] = {};
 						}
-						T.GRID.redraw();
+
+                        T.GRID.setNeedsRedraw();
 					});
 				}
 			}, 500);

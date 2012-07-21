@@ -22,7 +22,7 @@ switch(@$_REQUEST['act'])
 {
 case 'filelist':
 	$res = read_directory();
-	$first_files = explode("/", substr($res['res'], 0, 2000));
+	$first_files = explode("/", substr($res['res'], 0, 20000));
 	if (count($first_files)) array_pop($first_files);
 	
 	$_RESULT = array(

@@ -5,6 +5,7 @@ var Grid = function()
     var _widths, _fields, _fieldsNum, _container, _id, _visibleRows, _zebraColor;
 
     var _previousPos, _currentPos, _currentOffset, _shown, _scrollboxHeight, _scrollerHeight;
+    var _scrollerIsMoving = false, _needRedraw = false;
     var _rowHeight = 30;
 
     T.setup = function(settings)
@@ -93,9 +94,10 @@ var Grid = function()
 
     function _scrollBody()
     {
-        var body = document.getElementById(_id + '_body'), rowData, row, cell, i, data;
-        for (i = _previousPos; i < _currentPos; i++) _deleteRow(i);
-        for (i = _previousPos; i > _currentPos; i--) _deleteRow(i);
+        var body = document.getElementById(_id + '_body'), rowData, row, cell, i, k, data;
+        for (k in _shown) {
+            if (k < _currentPos || k > _currentPos + _visibleRows) _deleteRow(k);
+        }
         var cnt = _countFunc();
 
         var firstChild = body.firstChild;
@@ -104,7 +106,7 @@ var Grid = function()
             rowData = _fetchFunc(i);
             row = document.createElement('div');
             row.id = _id + '_row_' + i;
-            row.style.height = _rowHeight + 'px';
+            row.style.height = (_rowHeight - 1) + 'px';
             row.className = 'grid_row';
 
             var bgcolor = '';
@@ -112,7 +114,7 @@ var Grid = function()
             if (!bgcolor && _zebraColor && i % 2 == 0) bgcolor = _zebraColor;
             if (bgcolor) row.style.backgroundColor = bgcolor;
 
-            for (var k in _fields) {
+            for (k in _fields) {
                 cell = document.createElement('div');
                 cell.className = 'grid_row_cell';
                 cell.style.width = (_colWidth(k) - 5) + 'px'; // padding is 3+3 px
@@ -175,11 +177,19 @@ var Grid = function()
         return (_scrollboxHeight - _scrollerHeight);
     }
 
+    var _fadeTimeout = false;
     function _moveScroller()
     {
         var el = document.getElementById(_id + '_scroller');
         if (!el) return;
         el.style.marginTop = Math.floor(_getMaxScrollerOffset() * (_currentOffset / _getMaxOffset())) + 'px';
+        if (_scrollerIsMoving) return;
+        el.className = 'grid_scroller grid_scroller_selected';
+        if (_fadeTimeout) clearTimeout(_fadeTimeout);
+        _fadeTimeout = setTimeout(function() {
+            if (_scrollerIsMoving) return;
+            el.className = 'grid_scroller';
+        }, 400);
     }
 
     function _setupScroller()
@@ -189,25 +199,33 @@ var Grid = function()
         if (!el) return;
 
         var beginY, beginOffset;
-        var move_callback, mouseup_callback;
+        var moveCallback, upCallback;
 
-        move_callback = function(e) {
+        moveCallback = function(e) {
             var delta = e.clientY - beginY;
             var relativeOffset = delta / _getMaxScrollerOffset();
             _setOffset(Math.floor(beginOffset + relativeOffset * _getMaxOffset()));
             _try(_scrollBody);
         };
 
-        mouseup_callback = function(e) {
-            window.removeEventListener('mousemove', move_callback);
-            window.removeEventListener('mouseup', mouseup_callback);
+        upCallback = function(e) {
+            el.className = 'grid_scroller';
+            _scrollerIsMoving = false;
+            window.removeEventListener('mousemove', moveCallback);
+            window.removeEventListener('mouseup', upCallback);
+            if (_needRedraw) {
+                _needRedraw = false;
+                T.redraw();
+            }
         };
 
         el.addEventListener('mouseover', function(e) {
+            if (_scrollerIsMoving) return;
             el.className = 'grid_scroller grid_scroller_selected';
         });
 
         el.addEventListener('mouseout', function(e) {
+            if (_scrollerIsMoving) return;
             el.className = 'grid_scroller';
         });
 
@@ -218,8 +236,10 @@ var Grid = function()
             beginY = e.clientY;
             beginOffset = _currentOffset;
 
-            window.addEventListener('mousemove', move_callback);
-            window.addEventListener('mouseup', mouseup_callback);
+            _scrollerIsMoving = true;
+            el.className = 'grid_scroller grid_scroller_selected';
+            window.addEventListener('mousemove', moveCallback);
+            window.addEventListener('mouseup', upCallback);
         });
 
 
@@ -227,7 +247,7 @@ var Grid = function()
 
     function _getMaxOffset()
     {
-        return (_countFunc() + 2) * _rowHeight - _container.offsetHeight;
+        return (_countFunc() + 1.5) * _rowHeight - _container.offsetHeight;
     }
 
     function _setOffset(value)
@@ -249,14 +269,23 @@ var Grid = function()
     T.redraw = function(pos)
     {
         _try(function() {
-            _previousPos = 0;
             // ensure current offset is correct
             _setOffset(pos !== undefined ? pos * _rowHeight : _currentOffset);
+            _previousPos = 0;
             _shown = {}; // { row_number: true }
             _container.innerHTML = _getHeaderHTML() + _getScrollerHTML();
             _setupBodyScroll();
             _setupScroller();
             _scrollBody();
         });
+    };
+
+    T.setNeedsRedraw = function() {
+        if (_scrollerIsMoving) {
+            _needRedraw = true;
+            return;
+        }
+
+        T.redraw();
     };
 };
