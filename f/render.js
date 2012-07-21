@@ -210,7 +210,6 @@ table: function(){
             for (var i = 0; i < l; i++) {
                 if (T.filelist[i].indexOf(str) > -1) T.filtered_filelist.push(T.filelist[i]);
             }
-            T.filtered_filelist.push('');
         }
         _last_filter = '' + str;
 
