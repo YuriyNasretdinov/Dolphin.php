@@ -246,7 +246,7 @@ table: function(){
             };
             settings.count = function() {
                 // last element is always empty
-                return Math.max(0, T.filtered_filelist.length - 1);
+                return Math.max(0, T.filtered_filelist.length);
             };
             T.onDataLoaded = function(req, need_filter)
 			{
