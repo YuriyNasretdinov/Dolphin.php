@@ -255,6 +255,8 @@ table: function(){
                     grid_setup = true;
                     _fileinfo = req.fileinfo;
                     T.filelist = req.res.split('/');
+                    T.filelist.pop();
+                    T.filelist.sort();
                     if (need_filter) T.filter(_last_filter, true);
                     else             T.filtered_filelist = T.filelist;
                 }
