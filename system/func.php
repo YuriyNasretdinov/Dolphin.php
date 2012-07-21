@@ -646,8 +646,6 @@ function ajax_start_transfer()
 {
 	if(!class_exists('JsHttpRequest'))
 	{
-		if(!preg_match('/khtml/i', $_SERVER['HTTP_USER_AGENT'])) ob_start('ob_gzhandler');
-		
 		//$old = $_SERVER['REQUEST_URI'];
 		
 		include_once(ROOT.'/system/libs/JsHttpRequest.php');
