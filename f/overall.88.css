@@ -121,11 +121,11 @@ div, span
 .grid_scroller {
     margin-left: 6px;
     width: 8px;
-    background: #bbb;
+    background: #888;
 }
 
 .grid_scroller_selected {
-    background: #888;
+    background: #666;
 }
 
 a

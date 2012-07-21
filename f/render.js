@@ -188,7 +188,7 @@ table: function(){
 	var _last_clicked_idx = -1;
 	var _last_clicked_time = null;
 	
-	var _filelist_pos = 0;
+	var _filelist_pos = 0, _filelist_ts = 0, _last_filelist_pos = 0, _last_filelist_ts = 0;
 
 	var _fileinfo = {
 		// name: { size: ..., type: ..., modified: ... }
@@ -226,11 +226,10 @@ table: function(){
 			
 			settings.container = document.getElementById('content');
             settings.fetch = function(i) {
-                var name = T.filtered_filelist[i];
-                var info = _fileinfo[name];
+                var name = T.filtered_filelist[i], info = _fileinfo[name];
                 if (!info) {
-                    _pending_files[name] = true;
                     info = {};
+                    _pending_files[name] = true;
                 }
 
                 return {
@@ -290,6 +289,7 @@ table: function(){
             settings.onRowChange = function(pos)
 			{
 				_filelist_pos = pos;
+                _filelist_ts = new Date().getTime();
 			};
 
             settings.fields = {
@@ -318,17 +318,41 @@ table: function(){
 			g.setup(settings);
 
             T.GRID_SETTINGS = settings;
-			
+
+            var latency = 0; // approx. latency of network, based on last request
+
 			D.qr('?act=filelist', {DIR: address}, T.onDataLoaded);
 			setInterval(function() {
 				if (_in_progress) return;
-				var pending = [], old_dir = D.get_dir();
-				for(var k in _pending_files) pending.push(k);
+				var pending = [], old_dir = D.get_dir(), begin_ts = new Date().getTime();
+                var fl_pos = _filelist_pos, fl_ts = _filelist_ts, fl = T.filtered_filelist;
+                var i, k, speed, items_needed, vis_els;
+
+                if (_last_filelist_ts && latency) {
+                    // approx. scrolling speed
+                    speed = Math.abs((fl_pos - _last_filelist_pos) / (fl_ts - _last_filelist_ts));
+                    vis_els = g.getVisibleRowsNum();
+                    items_needed = Math.min(Math.max(Math.max(5000, latency) * speed, vis_els * 2), 500);
+                    if (_filelist_pos < _last_filelist_pos) {
+                        for (i = _filelist_pos; i >= 0 && i >= _filelist_pos - items_needed; i--) {
+                            if (!_fileinfo[fl[i]]) _pending_files[fl[i]] = true;
+                        }
+                    } else {
+                        for (i = _filelist_pos; i < fl.length && i <= _filelist_pos + vis_els + items_needed; i++) {
+                            if (!_fileinfo[fl[i]]) _pending_files[fl[i]] = true;
+                        }
+                    }
+                }
+
+                for (k in _pending_files) pending.push(k);
 				if (pending.length) {
 					_in_progress = true;
 					D.qr('?act=files-info', {files: pending}, function(res) {
                         if (D.get_dir() != old_dir) return;
 						_in_progress = false;
+                        latency = new Date().getTime() - begin_ts;
+                        _last_filelist_pos = fl_pos;
+                        _last_filelist_ts = fl_ts;
 
 						for (var k in res.info) {
 							_fileinfo[k] = res.info[k];
@@ -340,7 +364,7 @@ table: function(){
 							if (!_fileinfo[name]) _fileinfo[name] = {};
 						}
 
-                        T.GRID.setNeedsRedraw();
+                        g.setNeedsRedraw();
 					});
 				}
 			}, 500);
@@ -368,7 +392,7 @@ table: function(){
             });
 			
 		}
-	}
+	};
 	
 	
 	

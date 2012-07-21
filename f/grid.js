@@ -6,7 +6,7 @@ var Grid = function()
 
     var _previousPos, _currentPos, _currentOffset, _shown, _scrollboxHeight, _scrollerHeight;
     var _scrollerIsMoving = false, _needRedraw = false;
-    var _rowHeight = 30;
+    var _rowHeight = 30, _minScrollerHeight = 20;
 
     T.setup = function(settings)
     {
@@ -73,7 +73,7 @@ var Grid = function()
     {
         _scrollboxHeight = _container.offsetHeight - _rowHeight - 10;
         _scrollerHeight = Math.ceil(_scrollboxHeight * _visibleRows / _countFunc());
-        _scrollerHeight = Math.max(20, _scrollerHeight);
+        _scrollerHeight = Math.max(_minScrollerHeight, _scrollerHeight);
         if (_scrollerHeight > _scrollboxHeight) return '';
         var code = [];
         code.push('<div class="grid_scrollbox" style="height: ' + _scrollboxHeight + 'px;">');
@@ -288,4 +288,8 @@ var Grid = function()
 
         T.redraw();
     };
+
+    T.getVisibleRowsNum = function() {
+        return _visibleRows;
+    }
 };
