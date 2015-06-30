@@ -7,7 +7,7 @@ function determine_type($f)
 	return d_is_dir($f) ? tDIR : tFILE;
 }
 
-function get_info($f, $_REQUEST = array())
+function get_info($f)
 {
 	global $descr;
 	
